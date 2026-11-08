@@ -8225,13 +8225,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Tampilkan banner panduan persiapan awal agar pemain tenang menanam
     if (defenseAlertBanner && defenseAlertText) {
-      defenseAlertText.textContent = '🌱 FASE PERSIAPAN (12s): Tanam sumber energi & penyerangmu sebelum musuh tiba!';
+      defenseAlertText.textContent = '🌱 FASE PERSIAPAN: Tanam pembela cintamu!';
       defenseAlertBanner.style.display = 'block';
       setTimeout(() => {
         if (defenseAlertBanner && defenseGameTime < 11.5) {
           defenseAlertBanner.style.display = 'none';
         }
-      }, 5500);
+      }, 2000);
     }
 
     // Show Game Screen, Hide Select Screen & Modal
@@ -8357,11 +8357,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Show on-screen alert banner
     if (defenseAlertBanner && defenseAlertText) {
-      defenseAlertText.textContent = `⚠️ MR. MANUSCRIPT MELUNCURKAN: BUKU BESAR TUGAS AKHIR! 📖 (Jalur ${targetLane + 1})`;
+      defenseAlertText.textContent = `⚠️ BUKU BESAR TUGAS AKHIR! (Jalur ${targetLane + 1})`;
       defenseAlertBanner.style.display = 'block';
       setTimeout(() => {
         if (defenseAlertBanner) defenseAlertBanner.style.display = 'none';
-      }, 4500);
+      }, 1800);
     }
   }
 
@@ -8508,11 +8508,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         playDefenseSound('alert');
         if (defenseAlertBanner && defenseAlertText) {
-          defenseAlertText.textContent = '⚡ PERISAI MR. MANUSCRIPT HANCUR! SERANG SEKARANG! ⚡';
+          defenseAlertText.textContent = '⚡ PERISAI HANCUR! SERANG BOS! ⚡';
           defenseAlertBanner.style.display = 'block';
           setTimeout(() => {
             if (defenseAlertBanner) defenseAlertBanner.style.display = 'none';
-          }, 3500);
+          }, 1800);
         }
       }
     }
@@ -8555,11 +8555,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Alert: shield recharged
         if (defenseAlertBanner && defenseAlertText) {
-          defenseAlertText.textContent = '🛡️ PERISAI MR. MANUSCRIPT PULIH! BERTAHAN! 🛡️';
+          defenseAlertText.textContent = '🛡️ PERISAI PULIH! BERTAHAN!';
           defenseAlertBanner.style.display = 'block';
           setTimeout(() => {
             if (defenseAlertBanner) defenseAlertBanner.style.display = 'none';
-          }, 3500);
+          }, 1800);
         }
       }
     }
