@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <!-- Rachel Avatar Solid Colors (Safe for Canvas) -->
+  <circle cx="50" cy="50" r="48" fill="#120e1f" stroke="#a855f7" stroke-width="3"/>
+  <!-- Hair back -->
+  <path d="M20 45 C15 70, 18 85, 26 92 L74 92 C82 85, 85 70, 80 45 Z" fill="#18181b"/>
+  <!-- Face -->
+  <ellipse cx="50" cy="55" rx="28" ry="30" fill="#fff0e6"/>
+  <!-- Hair Bangs -->
+  <path d="M22 45 C25 22, 40 18, 50 18 C60 18, 75 22, 78 45 C70 34, 58 32, 50 33 C42 32, 30 34, 22 45 Z" fill="#18181b"/>
+  <path d="M22 45 C20 60, 24 75, 26 80 L30 80 C27 70, 26 58, 28 45 Z" fill="#18181b"/>
+  <path d="M78 45 C80 60, 76 75, 74 80 L70 80 C73 70, 74 58, 72 45 Z" fill="#18181b"/>
+  <!-- Eyes -->
+  <ellipse cx="40" cy="52" rx="3.5" ry="4" fill="#09090b"/>
+  <ellipse cx="60" cy="52" rx="3.5" ry="4" fill="#09090b"/>
+  <circle cx="41.5" cy="50.5" r="1.5" fill="#ffffff"/>
+  <circle cx="61.5" cy="50.5" r="1.5" fill="#ffffff"/>
+  <!-- Blush -->
+  <ellipse cx="33" cy="60" rx="4" ry="2" fill="#f43f5e" opacity="0.4"/>
+  <ellipse cx="67" cy="60" rx="4" ry="2" fill="#f43f5e" opacity="0.4"/>
+  <!-- Smile -->
+  <path d="M44 63 Q50 69 56 63" fill="none" stroke="#e11d48" stroke-width="2.2" stroke-linecap="round"/>
+  <!-- Horns -->
+  <path d="M28 22 L20 10 L34 17 Z" fill="#ec4899"/>
+  <path d="M72 22 L80 10 L66 17 Z" fill="#ec4899"/>
+</svg>

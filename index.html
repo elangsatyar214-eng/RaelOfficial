@@ -1,0 +1,2569 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Elang & Rachel • Two Universes, One Orbit</title>
+  <meta name="description"
+    content="Elang & Rachel's anniversary celebration website. A story where magic, biology, physics energy, and love unite in one orbit.">
+
+  <!-- Favicon -->
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%200%20100%20100%22><text y=%22.9em%22 font-size=%2290%22>🌌</text></svg>">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Dancing+Script:wght@600;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="theme-obsidian">
+
+  <!-- ==================== 1. LOGIN / GATEWAY SCREEN ==================== -->
+  <div id="gatekeeper-screen" class="gatekeeper-overlay">
+    <div class="stars-bg"></div>
+    <div class="gatekeeper-card">
+      <div class="emblem-wrapper">
+        <div class="magic-orbit-ring"></div>
+        <div class="emblem-icon">
+          <!-- Hybrid Icon: Wand + Atom + Heart -->
+          <svg viewBox="0 0 100 100" class="nexus-symbol">
+            <!-- Atom Orbits (Fisika) -->
+            <ellipse cx="50" cy="50" rx="42" ry="16" class="orbit orbit-1" />
+            <ellipse cx="50" cy="50" rx="42" ry="16" class="orbit orbit-2" />
+            <!-- Deathly Hallows / Wand spark hint (Harry Potter) -->
+            <path d="M50 15 L22 75 L78 75 Z" class="triangle-rune" />
+            <line x1="50" y1="15" x2="50" y2="75" class="wand-line" />
+            <circle cx="50" cy="50" r="12" class="center-core" />
+          </svg>
+        </div>
+      </div>
+
+      <div class="gatekeeper-header">
+        <span class="gatekeeper-badge">CONFIDENTIAL • FOR RACHEL & ELANG ONLY</span>
+        <h1 class="cinzel-title">Two Universes, One Orbit</h1>
+        <p class="gatekeeper-subtitle">Insert the secret password spell to open the Elang & Rachel memory portal.</p>
+      </div>
+
+      <form id="login-form" class="gatekeeper-form" autocomplete="off">
+        <div class="input-group">
+          <i data-lucide="key-round" class="input-icon"></i>
+          <input type="password" id="passcode-input" placeholder="Enter the 6-digit secret passcode..." maxlength="10"
+            required autocomplete="current-password" />
+          <button type="button" id="toggle-password-btn" class="toggle-eye" aria-label="Show passcode">
+            <i data-lucide="eye" id="eye-icon"></i>
+          </button>
+        </div>
+
+        <button type="submit" id="unlock-btn" class="glow-button">
+          <span>Alohomora 🪄</span>
+          <i data-lucide="sparkles" class="btn-icon"></i>
+        </button>
+
+        <p id="error-message" class="error-text"></p>
+        <div class="gatekeeper-hint">
+          <i data-lucide="help-circle" class="hint-icon"></i>
+          <span>Hint: Our anniversary date (DDMMYY)</span>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MAIN APPLICATION CONTAINER ==================== -->
+  <div id="app-container" class="app-hidden">
+
+    <!-- FLOATING BACKGROUND PARTICLES -->
+    <canvas id="ambient-canvas"></canvas>
+
+    <!-- ==================== NAVBAR ==================== -->
+    <header class="main-header">
+      <div class="nav-container">
+        <a href="#home" class="brand-logo">
+          <span class="brand-names">E <span class="heart-pulse">❤️</span> R</span>
+          <span class="brand-tag">09.11.2023</span>
+        </a>
+
+        <!-- Desktop Navigation Links -->
+        <nav class="desktop-nav">
+          <a href="#home" class="nav-link active" data-target="home">
+            <i data-lucide="home"></i> <span>Home</span>
+          </a>
+          <a href="#story" class="nav-link" data-target="story">
+            <i data-lucide="dna"></i> <span>Our Story</span>
+          </a>
+          <a href="#archives" class="nav-link" data-target="archives">
+            <i data-lucide="camera"></i> <span>Archives</span>
+          </a>
+          <a href="#arena" class="nav-link" data-target="arena">
+            <i data-lucide="gamepad-2"></i> <span>The Arena</span>
+          </a>
+          <a href="#vault" class="nav-link" data-target="vault">
+            <i data-lucide="mail"></i> <span>Secret Vault</span>
+          </a>
+        </nav>
+
+        <!-- Header Actions: Music Player & Relock -->
+        <div class="header-actions">
+          <!-- Audio Mini Toggle -->
+          <button id="music-toggle-btn" class="icon-action-btn music-btn" title="Play/Pause Music">
+            <i data-lucide="disc" class="spin-disc"></i>
+            <span class="music-label">Ini Abadi</span>
+          </button>
+
+          <!-- Lock Button -->
+          <button id="relock-btn" class="icon-action-btn" title="Lock Page">
+            <i data-lucide="lock"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- ==================== MAIN CONTENT SECTIONS ==================== -->
+    <main class="content-wrapper">
+
+      <!-- SECTION 1: HOME (THE SANCTUARY) -->
+      <section id="home" class="view-section active-section">
+        <div class="hero-container">
+          <!-- Hero Tags -->
+          <div class="hero-badges">
+            <span class="badge-tag bio-tag">
+              <i data-lucide="microscope"></i> Future Biologist & Researcher
+            </span>
+            <span class="badge-separator">⚡</span>
+            <span class="badge-tag phys-tag">
+              <i data-lucide="flame"></i> Future Offshore Engineer
+            </span>
+          </div>
+
+          <!-- Hero Main Title -->
+          <h1 class="hero-headline cinzel-title">Two Universes, One Eternal Orbit</h1>
+          <p class="hero-subtext">
+            About two worlds in different directions, two people with different stories, dreams, and likes who are
+            brought together by fate to accompany each other, grow, and go home together.
+          </p>
+
+          <!-- LIVE RELATIONSHIP COUNTER -->
+          <div class="counter-card-wrapper">
+            <div class="counter-header">
+              <div class="live-dot"></div>
+              <span>OUR TIME TOGETHER SINCE NOVEMBER 9, 2023</span>
+            </div>
+
+            <div class="counter-grid">
+              <div class="time-box">
+                <span id="count-days" class="time-digit">0</span>
+                <span class="time-label">DAY</span>
+              </div>
+              <div class="time-divider">:</div>
+              <div class="time-box">
+                <span id="count-hours" class="time-digit">00</span>
+                <span class="time-label">HOUR</span>
+              </div>
+              <div class="time-divider">:</div>
+              <div class="time-box">
+                <span id="count-minutes" class="time-digit">00</span>
+                <span class="time-label">MINUTE</span>
+              </div>
+              <div class="time-divider">:</div>
+              <div class="time-box">
+                <span id="count-seconds" class="time-digit">00</span>
+                <span class="time-label">SECOND</span>
+              </div>
+            </div>
+
+            <p class="counter-footer-quote">
+              "And every second, I'm grateful I chose you as my place to go home"
+            </p>
+          </div>
+
+          <!-- FLOATING MUSIC PLAYER WIDGET -->
+          <div class="lany-player-card">
+            <div class="player-left">
+              <div class="vinyl-record" id="vinyl-disc">
+                <div class="vinyl-label">
+                  <span>PRG</span>
+                </div>
+              </div>
+              <div class="song-info">
+                <h4 class="song-title">Ini Abadi</h4>
+                <p class="song-artist">Perunggu</p>
+                <span class="song-status" id="song-status-text">Klik play untuk mendengarkan lagu spesial kita 🎵</span>
+              </div>
+            </div>
+
+            <div class="player-controls">
+              <button id="main-play-btn" class="player-play-btn" aria-label="Play/Pause">
+                <i data-lucide="play" id="play-icon"></i>
+              </button>
+              <div class="volume-slider-wrapper">
+                <i data-lucide="volume-2" class="vol-icon"></i>
+                <input type="range" id="volume-slider" min="0" max="1" step="0.05" value="0.7">
+              </div>
+            </div>
+
+            <!-- Native Audio Element with fallback -->
+            <audio id="bg-audio" preload="auto" loop>
+              <source src="assets/audio/ini-abadi.mp3" type="audio/mpeg">
+              <source src="assets/audio/Ini Abadi.mp3" type="audio/mpeg">
+              <source src="assets/audio/perunggu-ini-abadi.mp3" type="audio/mpeg">
+              <source src="assets/audio/Perunggu - Ini Abadi.mp3" type="audio/mpeg">
+              <source src="assets/audio/ini_abadi.mp3" type="audio/mpeg">
+              <source src="assets/audio/songs/ini-abadi.mp3" type="audio/mpeg">
+              <source src="assets/audio/songs/Ini Abadi.mp3" type="audio/mpeg">
+              <source src="assets/audio/songs/perunggu-ini-abadi.mp3" type="audio/mpeg">
+              <source src="assets/audio/lany-song.mp3" type="audio/mpeg">
+            </audio>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- SECTION 2: OUR STORY (TWO WORLDS COLLIDE) -->
+      <section id="story" class="view-section">
+        <div class="section-header">
+          <span class="section-tag">CHAPTER OF US</span>
+          <h2 class="cinzel-title">Two Worlds, One Harmony</h2>
+          <p class="section-desc">
+            We may come from different backgrounds, studies, and faiths. Yet it is those very differences that
+            make our story so beautiful
+          </p>
+        </div>
+
+        <!-- DUAL CONTRAST CARDS -->
+        <div class="duo-grid">
+          <!-- RACHEL'S SIDE -->
+          <div class="duo-card rachel-card">
+            <div class="duo-avatar">
+              <div class="avatar-glow rachel-glow"></div>
+              <div class="avatar-icon">👸🏻</div>
+            </div>
+            <div class="duo-header">
+              <span class="role-pill">ELANG'S QUEEN</span>
+              <h3>Rachel</h3>
+              <p class="duo-subtitle">Chindo • Biologist • The Potterhead</p>
+            </div>
+            <ul class="traits-list">
+              <li>
+                <i data-lucide="wand"></i>
+                <div>
+                  <strong>Harry Potter & Magic</strong>
+                  <span>A true Potterhead who loves magic and all its wonders</span>
+                </div>
+              </li>
+              <li>
+                <i data-lucide="blocks"></i>
+                <div>
+                  <strong>Block Blast Champion 🧩</strong>
+                  <span>Master of block puzzles and holder of combo streaks that Elang can't beat</span>
+                </div>
+              </li>
+              <li>
+                <i data-lucide="sparkles"></i>
+                <div>
+                  <strong>EXO Cosmic Ocean</strong>
+                  <span>"We Are One" and the silver glow of the EXO galaxy</span>
+                </div>
+              </li>
+              <li>
+                <i data-lucide="microscope"></i>
+                <div>
+                  <strong>Biology & Future Researcher</strong>
+                  <span>Dedicated to life sciences and unraveling nature's mysteries</span>
+                </div>
+              </li>
+              <li>
+                <i data-lucide="utensils"></i>
+                <div>
+                  <strong>Pasta Lover 🍝</strong>
+                  <span>The quintessential dish that always brings a smile</span>
+                </div>
+              </li>
+              <li>
+                <i data-lucide="church"></i>
+                <div>
+                  <strong>Catholic</strong>
+                  <span>A sincere heart in every whisper of prayer</span>
+                </div>
+              </li>
+              <li>
+                <i data-lucide="palette"></i>
+                <div>
+                  <strong>In Love with Black</strong>
+                  <span>Elegant, timeless, serene, and effortlessly captivating</span>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <!-- THE NEXUS / CONNECTOR IN THE MIDDLE -->
+          <div class="nexus-connector">
+            <div class="connector-line"></div>
+            <div class="connector-heart">
+              <i data-lucide="heart" class="heart-pulse"></i>
+              <span>BOUND BY LOVE</span>
+            </div>
+            <div class="connector-line"></div>
+          </div>
+
+          <!-- ELANG'S SIDE -->
+          <div class="duo-card elang-card">
+            <div class="duo-avatar">
+              <div class="avatar-glow elang-glow"></div>
+              <div class="avatar-icon">🤴🏻</div>
+            </div>
+            <div class="duo-header">
+              <span class="role-pill">RACHEL'S FOREVER PROTECTOR</span>
+              <h3>Elang</h3>
+              <p class="duo-subtitle">Engineer • Physicist • Handsome</p>
+            </div>
+            <ul class="traits-list">
+              <li>
+                <i data-lucide="film"></i>
+                <div>
+                  <strong>Favorite Movies: Marvel (MCU) 🛡️</strong>
+                  <span>A devoted fan of Marvel superheroes and the epic Avengers saga</span>
+                </div>
+              </li>
+              <li>
+                <i data-lucide="swords"></i>
+                <div>
+                  <strong>Mobile Legends: Bang Bang</strong>
+                  <span>Rachel's loyal partner, always ready to protect you IRL</span>
+                </div>
+              </li>
+              <li>
+                <i data-lucide="waves"></i>
+                <div>
+                  <strong>Engineering Physics & Offshore</strong>
+                  <span>Aspiring to master renewable energy on offshore platforms</span>
+                </div>
+              </li>
+              <li>
+                <i data-lucide="drumstick"></i>
+                <div>
+                  <strong>Sate Madura Enthusiast 🍢</strong>
+                  <span>Warm peanut sauce, as genuine and simple as my love for you</span>
+                </div>
+              </li>
+              <li>
+                <i data-lucide="compass"></i>
+                <div>
+                  <strong>Muslim</strong>
+                  <span>Loving and cherishing you under the grace and kindness of God</span>
+                </div>
+              </li>
+              <li>
+                <i data-lucide="atom"></i>
+                <div>
+                  <strong>Beige and Black Enthusiast</strong>
+                  <span>Elang's favorite color combination</span>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- SPECIAL HARMONY STATEMENT -->
+        <div class="harmony-statement-card">
+          <div class="harmony-icon">
+            <i data-lucide="sparkle"></i>
+          </div>
+          <div class="harmony-text">
+            <h4>"Two Faiths, Two Sciences, One Shared Horizon"</h4>
+            <p>
+              Beneath different sacred arches, our prayers rise toward the very same heavens, met by the grace that wove
+              our hearts as one.
+              While your hands trace the delicate miracles of living cells, and mine measure the resilience of steel
+              against open seas, we discover our truest truth
+              that love is not about walking the exact same path, but two distinct universes choosing, with every
+              breath, to orbit together
+            </p>
+          </div>
+        </div>
+
+        <!-- MILESTONE TIMELINE -->
+        <div class="timeline-wrapper">
+          <h3 class="timeline-title cinzel-title">The Timeline of Our Journey</h3>
+          <div class="timeline-stream">
+
+            <div class="timeline-item">
+              <div class="timeline-node">
+                <i data-lucide="calendar-heart"></i>
+              </div>
+              <div class="timeline-content">
+                <span class="milestone-date">November 9, 2023</span>
+                <h4>The Day We Made It Official and I still can't believe it 💖</h4>
+                <p>The moment two distinct universes officially intertwined into a single orbit. The beginning of a
+                  beautiful, lifelong story.</p>
+              </div>
+            </div>
+
+            <div class="timeline-item">
+              <div class="timeline-node">
+                <i data-lucide="map-pin"></i>
+              </div>
+              <div class="timeline-content">
+                <span class="milestone-date">Jogjakarta</span>
+                <h4>The place of our first staycation ✨</h4>
+                <p>Our unforgettable first getaway together, wandering the warm streets of Jogja, sharing endless
+                  laughter, and creating sweet memories during our very first staycation.</p>
+              </div>
+            </div>
+
+            <div class="timeline-item">
+              <div class="timeline-node">
+                <i data-lucide="home"></i>
+              </div>
+              <div class="timeline-content">
+                <span class="milestone-date">Solo</span>
+                <h4>My hometown and our favorite place to visit</h4>
+                <p>Bringing you to the city where my mother grew up, strolling through the calm and timeless corners of
+                  Solo, and realizing that my hometown never felt more special until I walked its streets with you.</p>
+              </div>
+            </div>
+
+            <div class="timeline-item">
+              <div class="timeline-node">
+                <i data-lucide="crown"></i>
+              </div>
+              <div class="timeline-content">
+                <span class="milestone-date">Today & Always</span>
+                <h4>Anniversary & Gazing at the Horizon 🌌</h4>
+                <p>A brilliant future biologist and an ambitious offshore engineer, forever lifting each other up until
+                  all our dreams become reality!</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- FUTURE PLANS & BUCKET LIST -->
+        <div class="future-plans-wrapper">
+          <div class="future-plans-header">
+            <span class="milestone-date">THE HORIZON AHEAD</span>
+            <h3 class="cinzel-title future-plans-title">Our Shared Future &amp; Bucket List ✨</h3>
+            <p class="future-plans-desc">
+              A sacred altar for Rachel &amp; Elang to write down every dream, adventure, milestone, and manifestation
+              we wish to achieve together. Add our, your, and my dreams, check them off as we conquer them, and let our
+              love write the next chapters!
+            </p>
+            <div class="future-stats-badge">
+              <span id="future-plans-count">0 / 0 Achieved 🌟</span>
+            </div>
+          </div>
+
+          <!-- Add Plan Form Card -->
+          <div class="future-plan-form-card">
+            <div class="future-author-select">
+              <span class="form-label">Written by:</span>
+              <div class="author-pills">
+                <button type="button" class="author-pill active" data-author="both">💑 Both of Us</button>
+                <button type="button" class="author-pill" data-author="rachel">🌸 Rachel</button>
+                <button type="button" class="author-pill" data-author="elang">⚡ Elang</button>
+              </div>
+            </div>
+
+            <form id="future-plan-form" class="future-plan-input-group">
+              <input type="text" id="future-plan-input"
+                placeholder="Write our next dream... (e.g., Vacation to Japan, buy a house, etc.)" maxlength="120"
+                required autocomplete="off" />
+              <button type="submit" id="add-future-plan-btn" class="glow-button future-add-btn">
+                <i data-lucide="sparkles"></i>
+                <span>Add Dream ✨</span>
+              </button>
+            </form>
+          </div>
+
+          <!-- Plans List Container -->
+          <div class="future-plans-grid" id="future-plans-list">
+            <!-- Dynamically rendered via JS -->
+          </div>
+        </div>
+
+      </section>
+
+      <!-- SECTION 3: MEMORY ARCHIVES (FOTO & KENANGAN) -->
+      <section id="archives" class="view-section">
+        <div class="section-header">
+          <span class="section-tag">POLAROID & MOMENTS</span>
+          <h2 class="cinzel-title">Memory Archives</h2>
+          <p class="section-desc">
+            A collection of sweet moments capturing our laughter, smiles, and togetherness. Click any photo to reveal
+            the
+            heartwarming story behind it!
+          </p>
+        </div>
+
+        <!-- GALLERY FILTER TABS -->
+        <div class="gallery-filters">
+          <button class="filter-btn active" data-filter="all">All Moments</button>
+          <button class="filter-btn" data-filter="special">Special Milestones</button>
+          <button class="filter-btn" data-filter="yearly">Through the Years</button>
+        </div>
+
+        <!-- POLAROID GRID -->
+        <div class="polaroid-grid" id="polaroid-grid">
+
+          <!-- Card 1 -->
+          <div class="polaroid-card" data-category="special" data-title="Our Very First Photo Together"
+            data-date="Our Very First Concert"
+            data-desc="Surrounded by music and vibrant lights, this was the unforgettable moment our very first photo together was taken. That magical night was only the beginning of our sweet journey together.">
+            <div class="pin-badge">📌</div>
+            <div class="polaroid-img-wrapper">
+              <img data-index="1" alt="Our Very First Photo Together" class="polaroid-real-img" />
+              <div class="placeholder-art art-stars">
+                <span class="art-icon">🌌</span>
+                <span class="art-caption">In Concert, We Trust!</span>
+              </div>
+            </div>
+            <div class="polaroid-caption">
+              <p class="caption-handwritten">Our Very First Photo Together</p>
+              <span class="caption-date">Our Very First Concert</span>
+            </div>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="polaroid-card" data-category="special" data-title="Our Very First Staycation"
+            data-date="Jogjakarta Getaway"
+            data-desc="Our very first staycation together in Jogja. Even though we only captured a few photos there, every quiet laugh, sweet walk, and warm moment from that trip is safely treasured in my heart.">
+            <div class="pin-badge">📌</div>
+            <div class="polaroid-img-wrapper">
+              <img data-index="2" alt="Our Very First Staycation" class="polaroid-real-img" />
+              <div class="placeholder-art art-pasta">
+                <span class="art-icon">🏨</span>
+                <span class="art-caption">Jogja</span>
+              </div>
+            </div>
+            <div class="polaroid-caption">
+              <p class="caption-handwritten">Our Very First Staycation</p>
+              <span class="caption-date">Unfortunately, We Only Have Few Pics of Us There</span>
+            </div>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="polaroid-card" data-category="special" data-title="Our Favorite Place to Come Back"
+            data-date="Solo Trip & Hometown"
+            data-desc="Visiting my hometown Solo with you always feels so comforting and full of warmth. From tasting delicious Timlo together to strolling down familiar streets, it truly feels like home. Let's staycation in Solo again soon!">
+            <div class="pin-badge">📌</div>
+            <div class="polaroid-img-wrapper">
+              <img data-index="3" alt="Our Favorite Place to Come Back" class="polaroid-real-img" />
+              <div class="placeholder-art art-bio">
+                <span class="art-icon">🍲</span>
+                <span class="art-caption">Solo</span>
+              </div>
+            </div>
+            <div class="polaroid-caption">
+              <p class="caption-handwritten">Our Favorite Place to Comeback</p>
+              <span class="caption-date">Let's Staycation Again to Solo and Eat Timlo, etc</span>
+            </div>
+          </div>
+
+          <!-- Card 4 (2026 Multi-Photo Slider) -->
+          <div class="polaroid-card" data-category="yearly" data-year="2026" data-title="Moments of 2026"
+            data-date="Year 2026 • Slide to Browse"
+            data-desc="Our journey continuing into 2026: three beautiful years of love, boundless laughter, supporting each other's dreams, and cherishing every single step of our eternal orbit.">
+            <div class="pin-badge">📌</div>
+            <div class="polaroid-img-wrapper" data-slider="true">
+              <img data-index="4" alt="Moments of 2026" class="polaroid-real-img" />
+              <div class="placeholder-art art-2026">
+                <span class="art-icon">🪐</span>
+                <span class="art-caption">Memories of 2026</span>
+              </div>
+            </div>
+            <div class="polaroid-caption">
+              <p class="caption-handwritten">Moments of 2026 💖</p>
+              <span class="caption-date">Three Years & Counting • Slide to View 📸</span>
+            </div>
+          </div>
+
+          <!-- Card 5 (2025 Multi-Photo Slider) -->
+          <div class="polaroid-card" data-category="yearly" data-year="2025" data-title="Moments of 2025"
+            data-date="Year 2025 • Slide to Browse"
+            data-desc="Our journey through 2025: filled with growth, shared laughter, conquering new challenges side by side, and countless sweet moments that brought our orbits even closer.">
+            <div class="pin-badge">📌</div>
+            <div class="polaroid-img-wrapper" data-slider="true">
+              <img data-index="5" alt="Moments of 2025" class="polaroid-real-img" />
+              <div class="placeholder-art art-2025">
+                <span class="art-icon">✨</span>
+                <span class="art-caption">Memories of 2025</span>
+              </div>
+            </div>
+            <div class="polaroid-caption">
+              <p class="caption-handwritten">Moments of 2025 ✨</p>
+              <span class="caption-date">Our Growing Journey • Slide to View 📸</span>
+            </div>
+          </div>
+
+          <!-- Card 6 (2024 Multi-Photo Slider) -->
+          <div class="polaroid-card" data-category="yearly" data-year="2024" data-title="Moments of 2024"
+            data-date="Year 2024 • Slide to Browse"
+            data-desc="Our first full year as us in 2024: navigating college, countless video calls, fun adventures, and discovering a thousand reasons to choose each other every single day.">
+            <div class="pin-badge">📌</div>
+            <div class="polaroid-img-wrapper" data-slider="true">
+              <img data-index="6" alt="Moments of 2024" class="polaroid-real-img" />
+              <div class="placeholder-art art-2024">
+                <span class="art-icon">💫</span>
+                <span class="art-caption">Memories of 2024</span>
+              </div>
+            </div>
+            <div class="polaroid-caption">
+              <p class="caption-handwritten">Moments of 2024 💫</p>
+              <span class="caption-date">Our First Full Year • Slide to View 📸</span>
+            </div>
+          </div>
+
+          <!-- Card 7 (2023 Multi-Photo Slider) -->
+          <div class="polaroid-card" data-category="yearly" data-year="2023" data-title="Moments of 2023"
+            data-date="Year 2023 • Slide to Browse"
+            data-desc="The unforgettable year where our two universes officially collided on 9 November 2023. Sweet first glances, fluttering butterflies, and the start of our eternal orbit.">
+            <div class="pin-badge">📌</div>
+            <div class="polaroid-img-wrapper" data-slider="true">
+              <img data-index="7" alt="Moments of 2023" class="polaroid-real-img" />
+              <div class="placeholder-art art-2023">
+                <span class="art-icon">🌌</span>
+                <span class="art-caption">Memories of 2023</span>
+              </div>
+            </div>
+            <div class="polaroid-caption">
+              <p class="caption-handwritten">Moments of 2023 🌌</p>
+              <span class="caption-date">Where It All Began • Slide to View 📸</span>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- SECTION 4: THE ARENA (QUIZ & MINI GAME) -->
+      <section id="arena" class="view-section">
+        <div class="section-header">
+          <span class="section-tag">FUN & INTERACTIVE</span>
+          <h2 class="cinzel-title">The Duo Arena</h2>
+          <p class="section-desc">
+            Test how deeply we understand each other in our love quiz, and play mini-games to gather our love energy!
+          </p>
+        </div>
+
+        <!-- ARENA TABS -->
+        <div class="arena-switch">
+          <button id="tab-quiz-btn" class="arena-tab-btn active">
+            <i data-lucide="help-circle"></i>
+            <span>Couple Trivia Quiz</span>
+          </button>
+          <button id="tab-game-btn" class="arena-tab-btn">
+            <i data-lucide="sparkles"></i>
+            <span>Catch The Golden Snitch</span>
+          </button>
+          <button id="tab-runner-btn" class="arena-tab-btn">
+            <i data-lucide="flame"></i>
+            <span>Reach Anniversary (91,123) 🎮</span>
+          </button>
+          <button id="tab-blockblast-btn" class="arena-tab-btn">
+            <i data-lucide="blocks"></i>
+            <span>Love Block Blast 🧩</span>
+          </button>
+          <button id="tab-cookoff-btn" class="arena-tab-btn">
+            <i data-lucide="utensils"></i>
+            <span>Date Night Cook-Off 🍝🍢</span>
+          </button>
+          <button id="tab-rhythm-btn" class="arena-tab-btn">
+            <i data-lucide="music"></i>
+            <span>Cosmic Beats (Piano Tiles) 🎹</span>
+          </button>
+          <button id="tab-suika-btn" class="arena-tab-btn">
+            <i data-lucide="orbit"></i>
+            <span>Cosmic Drop: Love Synthesis 🪐</span>
+          </button>
+          <button id="tab-defense-btn" class="arena-tab-btn">
+            <i data-lucide="shield"></i>
+            <span>Love Defense 🏰⚡</span>
+          </button>
+        </div>
+
+        <!-- 1. COUPLE QUIZ WRAPPER -->
+        <div id="quiz-wrapper" class="arena-content-box active-arena-tab">
+          <div class="quiz-card">
+            <!-- Progress Bar -->
+            <div class="quiz-progress-bar">
+              <div id="quiz-progress-fill" class="progress-fill" style="width: 20%;"></div>
+            </div>
+            <div class="quiz-meta">
+              <span id="quiz-step-text">Question 1 of 5</span>
+              <span id="quiz-score-badge">Score: 0</span>
+            </div>
+
+            <!-- Question Screen -->
+            <div id="question-container">
+              <h3 id="quiz-question-title" class="quiz-q-title">Loading questions...</h3>
+              <div id="quiz-options-grid" class="options-grid">
+                <!-- Option buttons generated via JS -->
+              </div>
+            </div>
+
+            <!-- Result Screen (Hidden by default) -->
+            <div id="quiz-result-container" class="quiz-result-card" style="display: none;">
+              <div class="result-badge-icon">🏆</div>
+              <h3 id="result-title" class="cinzel-title">Mythic Glory Soulmate!</h3>
+              <p id="result-score-text">You answered 5 out of 5 questions correctly!</p>
+              <div class="result-praise-box" id="result-praise">
+                "The two of you truly understand each other inside out! Ready to walk down the aisle together in the
+                future!"
+              </div>
+              <button id="restart-quiz-btn" class="glow-button">
+                <i data-lucide="rotate-ccw"></i>
+                <span>Play Again</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. MINI GAME WRAPPER -->
+        <div id="game-wrapper" class="arena-content-box" style="display: none;">
+          <div class="game-card">
+            <div class="game-hud">
+              <div class="hud-item">
+                <span class="hud-label">Love Energy:</span>
+                <div class="energy-bar-wrap">
+                  <div id="game-energy-fill" class="energy-fill" style="width: 0%;"></div>
+                </div>
+                <span id="game-energy-text" class="hud-val">0%</span>
+              </div>
+              <div class="hud-item">
+                <span class="hud-label">Time:</span>
+                <span id="game-timer" class="hud-val highlight">20s</span>
+              </div>
+            </div>
+
+            <div class="game-instructions">
+              <p>Catch the <strong>Golden Snitch (HP)</strong> 🪄 and <strong>Energy Orbs (Physics)</strong> ⚡ flying
+                in the area below before time runs out!</p>
+            </div>
+
+            <!-- Play Area Canvas / Container -->
+            <div id="snitch-field" class="snitch-field">
+              <div id="game-start-overlay" class="game-overlay">
+                <div class="game-start-modal">
+                  <div class="modal-icon">⚡🪄</div>
+                  <h4>Mission: Gather 100% Love Energy</h4>
+                  <p>Click as many objects as fast as your thumbs can!</p>
+                  <button id="start-game-btn" class="glow-button">
+                    <span>Launch Mission 🚀</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. RUNNER GAME: LET'S REACH TO OUR ANNIVERSARY DATE (LEVEL DEVIL THEME) -->
+        <div id="runner-wrapper" class="arena-content-box runner-game-container" style="display: none;">
+          <div class="level-devil-frame">
+
+            <!-- Character Selection Screen -->
+            <div id="runner-select-screen" class="runner-screen">
+              <div class="level-devil-badge">LEVEL DEVIL RUNNER</div>
+              <h3 class="runner-main-title cinzel-title">Let's Reach To Our Anniversary Date</h3>
+              <p class="runner-sub-desc">
+                Our goal: Collect <strong>91,123 Points</strong>! Dodge cars, motorcycles & an ex's face. But
+                <strong>bump into your partner's face</strong> for a bonus <strong>+500 Points</strong>!
+              </p>
+
+              <div class="char-select-grid">
+                <!-- Option Rachel -->
+                <div class="char-card active" data-char="rachel">
+                  <div class="char-preview">
+                    <div class="char-devil-body body-rachel">
+                      <div class="devil-horns"></div>
+                      <img src="assets/images/head-rachel.png"
+                        onerror="if(!this.dataset.triedJpg){this.dataset.triedJpg='1'; this.src='assets/images/head-rachel.jpg';} else {this.src='assets/images/head-rachel.svg';}"
+                        alt="Rachel" class="char-head-img">
+                      <div class="devil-feet"></div>
+                    </div>
+                  </div>
+                  <h4>Rachel</h4>
+                  <span class="char-role">The Potterhead Biologist</span>
+                  <p class="char-target-hint">Love Item: Bump into Elang's face <strong>(+500 Points)</strong></p>
+                </div>
+
+                <!-- Option Elang -->
+                <div class="char-card" data-char="elang">
+                  <div class="char-preview">
+                    <div class="char-devil-body body-elang">
+                      <div class="devil-horns"></div>
+                      <img src="assets/images/head-elang.png"
+                        onerror="if(!this.dataset.triedJpg){this.dataset.triedJpg='1'; this.src='assets/images/head-elang.jpg';} else {this.src='assets/images/head-elang.svg';}"
+                        alt="Elang" class="char-head-img">
+                      <div class="devil-feet"></div>
+                    </div>
+                  </div>
+                  <h4>Elang</h4>
+                  <span class="char-role">The Offshore Physicist</span>
+                  <p class="char-target-hint">Love Item: Bump into Rachel's face <strong>(+500 Points)</strong></p>
+                </div>
+              </div>
+
+              <!-- Controls Guide -->
+              <div class="runner-controls-guide">
+                <div class="guide-key"><kbd>SPACE / ⬆</kbd> <span>Jump (Dodge Cars & Bikes)</span></div>
+                <div class="guide-key"><kbd>⬇ ARROW</kbd> <span>Duck (Dodge Ex's Face)</span></div>
+                <div class="guide-key highlight"><kbd>❤️ BUMP</kbd> <span>Partner's Face = +500 Points</span></div>
+              </div>
+
+              <button id="start-runner-btn" class="glow-button level-devil-btn">
+                <span>Start Adventure to 91,123 🚀</span>
+              </button>
+            </div>
+
+            <!-- Active Gameplay Screen -->
+            <div id="runner-play-screen" class="runner-screen" style="display: none;">
+              <!-- HUD Header -->
+              <div class="runner-hud">
+                <div class="hud-stat-box">
+                  <span class="hud-tiny-label">ANNIV GOAL</span>
+                  <span class="hud-score-display"><span id="runner-current-score">0</span> <small>/
+                      91,123</small></span>
+                </div>
+
+                <div class="runner-progress-wrapper">
+                  <div class="runner-progress-track">
+                    <div id="runner-progress-bar" class="runner-progress-fill" style="width: 0%;"></div>
+                  </div>
+                  <span id="runner-progress-text" class="runner-progress-label">0%</span>
+                </div>
+
+                <div class="hud-bonus-box">
+                  <span class="hud-tiny-label">LOVE BONUS</span>
+                  <span id="runner-bonus-badge" class="hud-bonus-tag">+0</span>
+                </div>
+              </div>
+
+              <!-- Canvas Runner Stage -->
+              <div class="canvas-stage-wrapper">
+                <canvas id="runner-canvas" width="800" height="280"></canvas>
+                <div id="runner-toast-container" class="runner-toast-container"></div>
+              </div>
+
+              <!-- Mobile Touch Controls -->
+              <div class="runner-mobile-controls">
+                <button type="button" id="mobile-duck-btn" class="touch-control-btn duck-btn">
+                  <i data-lucide="arrow-down"></i>
+                  <span>DUCK</span>
+                </button>
+                <button type="button" id="mobile-jump-btn" class="touch-control-btn jump-btn">
+                  <i data-lucide="arrow-up"></i>
+                  <span>JUMP</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Game Over Modal -->
+            <div id="runner-gameover-screen" class="runner-overlay-modal" style="display: none;">
+              <div class="devil-modal-content">
+                <div class="devil-skull-icon">💀⚡</div>
+                <h3 class="cinzel-title">OUCH! COLLISION!</h3>
+                <p id="runner-death-reason" class="death-reason-text">You hit an obstacle on the road!</p>
+                <div class="final-score-box">
+                  <span>Points Collected:</span>
+                  <strong id="gameover-score">0</strong>
+                  <small>Towards the 91,123 goal</small>
+                </div>
+                <button id="retry-runner-btn" class="glow-button level-devil-btn">
+                  <i data-lucide="rotate-ccw"></i>
+                  <span>Try Again 🔁</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Victory Celebration Screen (91,123 Reached!) -->
+            <div id="runner-victory-screen" class="runner-overlay-modal victory-modal" style="display: none;">
+              <!-- Quick corner close / replay button -->
+              <button type="button" id="victory-corner-close-btn" class="modal-corner-close-btn"
+                title="Play Again / Close">✕</button>
+
+              <div class="devil-modal-content victory-content">
+                <div class="crown-animation-box">
+                  <div class="crown-glow"></div>
+                  <div class="crown-icon">👑</div>
+                </div>
+                <span class="victory-kicker">91,123 POINTS ACHIEVED • ANNIVERSARY UNLOCKED!</span>
+                <h2 id="runner-victory-question" class="victory-question cinzel-title">"Will you let me be your forever
+                  King?"</h2>
+                <p class="victory-message">
+                  We conquered every shadow of the past, outpaced every road obstacle, and always found our way back to
+                  each other, multiplying our love until reaching our sacred number 91,123!
+                </p>
+
+                <!-- Ngambek / Rejection Warning Box (Shown when "No, ogah" is clicked) -->
+                <div id="rejection-warning-box" class="rejection-warning" style="display: none;">
+                  <div class="warning-icon">😤💢</div>
+                  <p class="warning-text">
+                    So that's how it is, you'd rather choose your ex!!??? 🥺💔<br>
+                    Quickly choose <strong>Yes, always</strong> or I'll eat you up alive!!!!!!!!!!!! 😡🔥🍽️
+                  </p>
+                  <!-- Direct Action Button inside warning box so user can ALWAYS choose Yes, always -->
+                  <button type="button" id="rejection-force-yes-btn" class="glow-button force-yes-btn">
+                    <span>💍 Mercy! Choose "Yes, always" Now! 💖</span>
+                  </button>
+                </div>
+
+                <!-- Choice Action Buttons: Yes, always & No, ogah -->
+                <div id="victory-action-buttons" class="victory-action-buttons">
+                  <button type="button" id="victory-yes-btn" class="glow-button victory-choice-btn">
+                    <span>💍 Yes, always</span>
+                  </button>
+                  <button type="button" id="victory-no-btn" class="glow-button victory-choice-btn ogah-btn">
+                    <span>🙅 No, nope</span>
+                  </button>
+                </div>
+
+                <!-- Final Royal Love Declaration -->
+                <div id="royal-declaration-box" class="royal-declaration" style="display: none;">
+                  <div class="royal-seal">E ❤️ R</div>
+                  <h4 id="royal-declaration-title">Crown of Eternal Vows</h4>
+                  <p id="royal-declaration-text">
+                    "From this day forth, tomorrow, and forever, I vow to be the King who always cherishes you, protects
+                    you, supports your brilliant biology research, treats you to the finest pasta, and walks beside you
+                    through every chapter of our lives. Happy Anniversary, Rachel!"
+                  </p>
+                  <span id="royal-declaration-sig" class="royal-sig">— Elang, Your Forever King</span>
+
+                  <!-- REPLAY CONTROLS (Issue 3 fix: Gamenya bisa diulang kapan saja!) -->
+                  <div class="victory-replay-group">
+                    <button type="button" id="victory-replay-btn" class="glow-button level-devil-btn replay-game-btn">
+                      <i data-lucide="rotate-ccw"></i>
+                      <span>Play Again (Replay 91,123) 🎮</span>
+                    </button>
+                    <button type="button" id="victory-change-char-btn" class="glow-button change-char-btn">
+                      <i data-lucide="users"></i>
+                      <span>Switch Character & Play Again 🔄</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- 4. LOVE BLOCK BLAST MINI GAME (8x8 GRID WITH ELANG & RACHEL TILES) -->
+        <div id="blockblast-wrapper" class="arena-content-box blockblast-game-container" style="display: none;">
+          <div class="blockblast-frame">
+
+            <!-- A. PRE-GAME / CHARACTER SELECT & SCORE COMPARISON SCREEN -->
+            <div id="bb-select-screen" class="bb-screen">
+              <div class="bb-header-badge">LOVE PUZZLE ARENA</div>
+              <h3 class="bb-main-title cinzel-title">Love Block Blast</h3>
+              <p class="bb-sub-desc">
+                Assemble Elang & Rachel's love blocks, spark chain combos, and break all high score records without
+                limit!
+              </p>
+
+              <!-- HIGHSCORE VERSUS COMPARISON BOARD -->
+              <div class="bb-versus-board">
+                <!-- Rachel's High Score -->
+                <div class="bb-score-card rachel-score-card" id="bb-card-rachel">
+                  <div class="bb-crown-holder" id="bb-crown-rachel" style="display: none;">👑</div>
+                  <div class="bb-avatar-circle rachel-border">
+                    <img src="assets/images/head-rachel.png"
+                      onerror="if(!this.dataset.triedJpg){this.dataset.triedJpg='1'; this.src='assets/images/head-rachel.jpg';} else {this.src='assets/images/head-rachel.svg';}"
+                      alt="Rachel" class="bb-avatar-img">
+                  </div>
+                  <span class="bb-score-name">Rachel</span>
+                  <span class="bb-score-role">The Potterhead Biologist</span>
+                  <div class="bb-score-val-box">
+                    <small>HIGH SCORE</small>
+                    <strong id="bb-highscore-rachel">0</strong>
+                  </div>
+                </div>
+
+                <!-- Center VS Badge & Status -->
+                <div class="bb-vs-center">
+                  <div class="bb-vs-circle">VS</div>
+                  <div class="bb-lead-status" id="bb-lead-status">
+                    <span>🤝 Tied Score</span>
+                  </div>
+                </div>
+
+                <!-- Elang's High Score -->
+                <div class="bb-score-card elang-score-card" id="bb-card-elang">
+                  <div class="bb-crown-holder" id="bb-crown-elang" style="display: none;">👑</div>
+                  <div class="bb-avatar-circle elang-border">
+                    <img src="assets/images/head-elang.png"
+                      onerror="if(!this.dataset.triedJpg){this.dataset.triedJpg='1'; this.src='assets/images/head-elang.jpg';} else {this.src='assets/images/head-elang.svg';}"
+                      alt="Elang" class="bb-avatar-img">
+                  </div>
+                  <span class="bb-score-name">Elang</span>
+                  <span class="bb-score-role">The Offshore Physicist</span>
+                  <div class="bb-score-val-box">
+                    <small>HIGH SCORE</small>
+                    <strong id="bb-highscore-elang">0</strong>
+                  </div>
+                </div>
+              </div>
+
+              <!-- CHARACTER SELECTION FOR THIS MATCH -->
+              <div class="bb-char-prompt">
+                <span>Select Character to Play:</span>
+              </div>
+              <div class="bb-char-select-grid">
+                <div class="bb-player-card active" data-player="rachel" id="bb-choose-rachel">
+                  <div class="bb-player-check">✓</div>
+                  <div class="bb-player-icon">👸🏻</div>
+                  <div class="bb-player-info">
+                    <strong>Play as Rachel</strong>
+                    <small>Prove yourself as the true Block Blast puzzle queen!</small>
+                  </div>
+                </div>
+                <div class="bb-player-card" data-player="elang" id="bb-choose-elang">
+                  <div class="bb-player-check">✓</div>
+                  <div class="bb-player-icon">🤴🏻</div>
+                  <div class="bb-player-info">
+                    <strong>Play as Elang</strong>
+                    <small>Unleash the Physicist's master block strategies!</small>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Action Button -->
+              <button id="bb-start-btn" class="glow-button bb-start-btn">
+                <i data-lucide="play"></i>
+                <span>Launch Love Block Blast 🚀</span>
+              </button>
+            </div>
+
+            <!-- B. ACTIVE GAMEPLAY SCREEN -->
+            <div id="bb-play-screen" class="bb-screen" style="display: none;">
+              <!-- Game HUD -->
+              <div class="bb-hud">
+                <div class="bb-hud-player">
+                  <span class="bb-hud-tiny">PLAYER</span>
+                  <div class="bb-hud-avatar-box">
+                    <img id="bb-hud-player-img" src="assets/images/head-rachel.svg" alt="Player" class="bb-hud-avatar">
+                    <strong id="bb-hud-player-name">Rachel</strong>
+                  </div>
+                </div>
+
+                <div class="bb-hud-score-center">
+                  <span class="bb-hud-tiny">SCORE</span>
+                  <div class="bb-hud-score" id="bb-current-score">0</div>
+                  <!-- Dynamic Combo Banner -->
+                  <div id="bb-combo-banner" class="bb-combo-banner" style="display: none;">
+                    <span id="bb-combo-text">COMBO x2! 🔥</span>
+                  </div>
+                </div>
+
+                <div class="bb-hud-high">
+                  <span class="bb-hud-tiny">PERSONAL BEST</span>
+                  <div class="bb-hud-high-val" id="bb-hud-target-record">0</div>
+                  <button type="button" id="bb-back-btn" class="bb-hud-back-btn" title="Back / Switch Player">
+                    <i data-lucide="arrow-left"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Floating Toasts -->
+              <div id="bb-toast-container" class="bb-toast-container"></div>
+
+              <!-- 8x8 BOARD WRAPPER -->
+              <div class="bb-board-container">
+                <div id="bb-board" class="bb-board">
+                  <!-- 64 cells generated by JS -->
+                </div>
+              </div>
+
+              <!-- 3 PIECES DOCK AT BOTTOM -->
+              <div class="bb-dock-guide">
+                <span id="bb-dock-guide-text">Drag blocks onto the board, or tap a block then tap a grid square:</span>
+              </div>
+              <div id="bb-dock" class="bb-dock">
+                <!-- 3 piece slots generated by JS -->
+              </div>
+            </div>
+
+            <!-- C. GAME OVER MODAL -->
+            <div id="bb-gameover-modal" class="bb-modal" style="display: none;">
+              <div class="bb-modal-backdrop"></div>
+              <div class="bb-modal-content">
+                <div class="bb-modal-emoji" id="bb-gameover-emoji">🧩💥</div>
+                <h3 class="cinzel-title" id="bb-gameover-title">Board is Full!</h3>
+                <p id="bb-gameover-desc">No more room left to place the remaining love blocks.</p>
+
+                <div class="bb-modal-score-summary">
+                  <div class="bb-modal-score-item">
+                    <span>Your Score:</span>
+                    <strong id="bb-modal-final-score">0</strong>
+                  </div>
+                  <div class="bb-modal-score-item highlight" id="bb-modal-highscore-row">
+                    <span id="bb-modal-record-label">Highest Record:</span>
+                    <strong id="bb-modal-highscore-val">0</strong>
+                  </div>
+                </div>
+
+                <!-- New Record Alert -->
+                <div id="bb-new-record-badge" class="bb-new-record-badge" style="display: none;">
+                  <span>🎉 NEW RECORD ACHIEVED! 👑</span>
+                </div>
+
+                <div class="bb-modal-actions">
+                  <button type="button" id="bb-retry-btn" class="glow-button bb-modal-btn">
+                    <i data-lucide="rotate-ccw"></i>
+                    <span>Play Again 🔁</span>
+                  </button>
+                  <button type="button" id="bb-change-player-btn" class="secondary-btn bb-modal-btn">
+                    <i data-lucide="users"></i>
+                    <span>Switch Character</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- 5. DATE NIGHT COOK-OFF MINI GAME (COOKING MAMA / RESTAURANT STYLE) -->
+        <div id="cookoff-wrapper" class="arena-content-box cookoff-game-container" style="display: none;">
+          <div class="cookoff-frame">
+
+            <!-- A. PRE-GAME: BUKU RESEP KENCAN & START SCREEN -->
+            <div id="cookoff-recipe-screen" class="cookoff-screen">
+              <div class="cookoff-header-badge">CULINARY LOVE ARENA</div>
+              <h3 class="cookoff-main-title cinzel-title">Date Night Cook-Off</h3>
+              <p class="cookoff-sub-desc">
+                Master Rachel's favorite pasta & Elang's favorite satay in the Recipe Book, then serve date night orders
+                as swiftly as you can before time runs out!
+              </p>
+
+              <!-- HIGH SCORE & STATS BANNER -->
+              <div class="cookoff-stats-banner">
+                <div class="cookoff-stat-card">
+                  <div class="cookoff-stat-icon">🏆</div>
+                  <div class="cookoff-stat-text">
+                    <small>COOKING RECORD SCORE</small>
+                    <strong id="cookoff-highscore-display">0</strong>
+                  </div>
+                </div>
+                <div class="cookoff-stat-card">
+                  <div class="cookoff-stat-icon">⭐</div>
+                  <div class="cookoff-stat-text">
+                    <small>HIGHEST DATE RATING</small>
+                    <strong id="cookoff-rating-display">⭐⭐⭐⭐⭐</strong>
+                  </div>
+                </div>
+              </div>
+
+              <!-- BUKU RESEP KENCAN (RECIPE BOOK) -->
+              <div class="recipe-book-box">
+                <div class="recipe-book-header">
+                  <div class="recipe-book-title-wrap">
+                    <span class="recipe-book-icon">📖</span>
+                    <div>
+                      <h4 class="recipe-book-title cinzel-title">Secret Date Night Cookbook</h4>
+                      <p class="recipe-book-hint">Every dish requires exactly 3 ingredients: [Base] + [Sauce/Seasoning]
+                        + [Topping]</p>
+                    </div>
+                  </div>
+                  <!-- Recipe Category Tabs -->
+                  <div class="recipe-filter-pills">
+                    <button type="button" class="recipe-pill-btn active" data-filter="all">All Recipes (8)</button>
+                    <button type="button" class="recipe-pill-btn" data-filter="rachel">🍝 Rachel's Pasta (4)</button>
+                    <button type="button" class="recipe-pill-btn" data-filter="elang">🍢 Elang's Satay (4)</button>
+                  </div>
+                </div>
+
+                <!-- Recipe Cards Grid -->
+                <div class="recipe-cards-grid" id="cookoff-recipe-cards-list">
+                  <!-- Generated by JS -->
+                </div>
+              </div>
+
+              <!-- Action Start Button -->
+              <button id="cookoff-start-btn" class="glow-button cookoff-start-btn">
+                <i data-lucide="flame"></i>
+                <span>Enter Kitchen & Start Cooking! 🍳 (90 Sec)</span>
+              </button>
+            </div>
+
+            <!-- B. ACTIVE GAMEPLAY: RESTAURANT / KITCHEN STAGE (SPLIT 2 COLUMNS) -->
+            <div id="cookoff-play-screen" class="cookoff-screen" style="display: none;">
+              <div class="cookoff-play-split">
+                <!-- SISI KIRI: Mulai dari sisa waktu sampai sajikan ke pasangan! -->
+                <div class="cookoff-play-left">
+                  <!-- Top HUD -->
+                  <div class="cookoff-hud">
+                    <div class="cookoff-hud-timer-box">
+                      <i data-lucide="clock" class="hud-clock-icon"></i>
+                      <div>
+                        <span class="cookoff-hud-label">TIME LEFT</span>
+                        <strong id="cookoff-timer-text">01:30</strong>
+                      </div>
+                    </div>
+
+                    <div class="cookoff-hud-score-center">
+                      <span class="cookoff-hud-label">DATE SCORE</span>
+                      <div class="cookoff-hud-score" id="cookoff-current-score">0</div>
+                      <div id="cookoff-combo-tag" class="cookoff-combo-tag" style="display: none;">
+                        <span id="cookoff-combo-tag-text">COMBO x2! 🔥</span>
+                      </div>
+                    </div>
+
+                    <div class="cookoff-hud-actions">
+                      <button type="button" id="cookoff-peek-btn" class="cookoff-hud-btn secondary"
+                        title="Peek at Cookbook">
+                        <i data-lucide="book-open"></i>
+                        <span>Peek Recipe</span>
+                      </button>
+                      <button type="button" id="cookoff-quit-btn" class="cookoff-hud-btn danger" title="Leave Kitchen">
+                        <i data-lucide="arrow-left"></i>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Dining Table & Customer Order Section -->
+                  <div class="cookoff-table-stage">
+                    <!-- Customer Avatar & Mood -->
+                    <div class="cookoff-customer-wrap" id="cookoff-customer-wrap">
+                      <div class="customer-avatar-halo" id="cookoff-customer-halo">
+                        <img id="cookoff-customer-img" src="assets/images/head-rachel.svg" alt="Customer"
+                          class="customer-avatar-img">
+                      </div>
+                      <div class="customer-badge-info">
+                        <strong id="cookoff-customer-name">Rachel</strong>
+                        <div class="customer-patience-bar-box">
+                          <div class="customer-hearts" id="cookoff-customer-hearts">💖💖💖💖💖</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Speech Bubble Order -->
+                    <div class="cookoff-order-bubble" id="cookoff-order-bubble">
+                      <div class="order-dish-title" id="cookoff-order-dish-name">Spaghetti Aglio Olio Al Funghi</div>
+                      <div class="order-dish-quote" id="cookoff-order-quote">"Honey, I'm so hungry... could you cook me
+                        some mushroom aglio olio pasta? 🥺"</div>
+                      <div class="order-ingredients-hint" id="cookoff-order-ingredients-hint"></div>
+                    </div>
+                  </div>
+
+                  <!-- Assembly Station (Piring Saji) -->
+                  <div class="cookoff-plate-station">
+                    <div class="station-plate" id="cookoff-plate">
+                      <div class="plate-steam" id="cookoff-plate-steam">♨️</div>
+                      <div class="plate-slot-container" id="cookoff-plate-slots">
+                        <div class="plate-slot empty" id="slot-base" data-type="base"><span>Select Base</span></div>
+                        <div class="plate-slot empty" id="slot-sauce" data-type="sauce"><span>Select Sauce</span></div>
+                        <div class="plate-slot empty" id="slot-topping" data-type="topping"><span>Select Topping</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Plate Actions -->
+                    <div class="cookoff-plate-actions">
+                      <button type="button" id="cookoff-clear-plate-btn" class="cookoff-clear-btn" title="Clear Plate">
+                        <i data-lucide="trash-2"></i>
+                        <span>Clear Plate</span>
+                      </button>
+                      <button type="button" id="cookoff-serve-btn" class="glow-button cookoff-serve-btn">
+                        <i data-lucide="check-circle-2"></i>
+                        <span>Serve to Partner! 🍽️</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- SISI KANAN: Mulai dari dasar/karbo sampai pelengkap/topping -->
+                <div class="cookoff-play-right">
+                  <!-- Pantry Shelf (Ingredient Buttons) -->
+                  <div class="cookoff-pantry">
+                    <div class="pantry-group">
+                      <span class="pantry-group-title">1. DASAR / KARBO</span>
+                      <div class="pantry-buttons-row">
+                        <button type="button" class="cookoff-ing-btn" data-category="base" data-id="spaghetti">
+                          <span class="ing-icon">🍝</span>
+                          <span class="ing-name">Spaghetti</span>
+                        </button>
+                        <button type="button" class="cookoff-ing-btn" data-category="base" data-id="penne">
+                          <span class="ing-icon">🥟</span>
+                          <span class="ing-name">Penne</span>
+                        </button>
+                        <button type="button" class="cookoff-ing-btn" data-category="base" data-id="sate_ayam">
+                          <span class="ing-icon">🍢</span>
+                          <span class="ing-name">Chicken Satay</span>
+                        </button>
+                        <button type="button" class="cookoff-ing-btn" data-category="base" data-id="sate_kambing">
+                          <span class="ing-icon">🥩</span>
+                          <span class="ing-name">Mutton Satay</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div class="pantry-group">
+                      <span class="pantry-group-title">2. SAUCE / DRESSING</span>
+                      <div class="pantry-buttons-row">
+                        <button type="button" class="cookoff-ing-btn" data-category="sauce" data-id="aglio_olio">
+                          <span class="ing-icon">🧄</span>
+                          <span class="ing-name">Aglio Olio Sauce</span>
+                        </button>
+                        <button type="button" class="cookoff-ing-btn" data-category="sauce" data-id="carbonara">
+                          <span class="ing-icon">🥛</span>
+                          <span class="ing-name">Carbonara Sauce</span>
+                        </button>
+                        <button type="button" class="cookoff-ing-btn" data-category="sauce" data-id="bolognese">
+                          <span class="ing-icon">🍅</span>
+                          <span class="ing-name">Bolognese Sauce</span>
+                        </button>
+                        <button type="button" class="cookoff-ing-btn" data-category="sauce" data-id="bumbu_kacang">
+                          <span class="ing-icon">🥜</span>
+                          <span class="ing-name">Peanut Sauce</span>
+                        </button>
+                        <button type="button" class="cookoff-ing-btn" data-category="sauce" data-id="kecap_pedas">
+                          <span class="ing-icon">🌶️</span>
+                          <span class="ing-name">Spicy Sweet Soy</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div class="pantry-group">
+                      <span class="pantry-group-title">3. TOPPING / SIDES</span>
+                      <div class="pantry-buttons-row">
+                        <button type="button" class="cookoff-ing-btn" data-category="topping" data-id="keju">
+                          <span class="ing-icon">🧀</span>
+                          <span class="ing-name">Parmesan Cheese</span>
+                        </button>
+                        <button type="button" class="cookoff-ing-btn" data-category="topping" data-id="jamur">
+                          <span class="ing-icon">🍄</span>
+                          <span class="ing-name">Truffle Mushroom</span>
+                        </button>
+                        <button type="button" class="cookoff-ing-btn" data-category="topping" data-id="bawang_goreng">
+                          <span class="ing-icon">🧅</span>
+                          <span class="ing-name">Fried Shallots</span>
+                        </button>
+                        <button type="button" class="cookoff-ing-btn" data-category="topping" data-id="irisan_cabe">
+                          <span class="ing-icon">🥗</span>
+                          <span class="ing-name">Chili & Shallot Slices</span>
+                        </button>
+                        <button type="button" class="cookoff-ing-btn" data-category="topping" data-id="lontong">
+                          <span class="ing-icon">🍚</span>
+                          <span class="ing-name">Rice Cake (Lontong)</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Toast / Feedback Popups -->
+              <div id="cookoff-toast" class="cookoff-toast" style="display: none;"></div>
+            </div>
+
+            <!-- C. MODAL: INTIP BUKU RESEP CEPAT -->
+            <div id="cookoff-peek-modal" class="cookoff-modal" style="display: none;">
+              <div class="cookoff-modal-backdrop" id="cookoff-peek-backdrop"></div>
+              <div class="cookoff-modal-content recipe-peek-content">
+                <div class="peek-header">
+                  <h4 class="cinzel-title">📖 Date Night Cookbook</h4>
+                  <button type="button" id="cookoff-peek-close-btn" class="peek-close-btn">✕</button>
+                </div>
+                <div class="peek-body" id="cookoff-peek-cards"></div>
+              </div>
+            </div>
+
+            <!-- D. MODAL: HASIL & SERTIFIKAT KENCAN -->
+            <div id="cookoff-result-modal" class="cookoff-modal" style="display: none;">
+              <div class="cookoff-modal-backdrop"></div>
+              <div class="cookoff-modal-content result-content">
+                <div class="result-badge">DATE NIGHT DINER CERTIFICATE</div>
+                <div class="result-stars" id="cookoff-result-stars">⭐⭐⭐⭐⭐</div>
+                <h3 class="cinzel-title" id="cookoff-result-title">True Love Masterchef!</h3>
+                <p id="cookoff-result-verdict" class="result-verdict">
+                  Rachel and Elang are fully stuffed and overflowing with joy! The most perfect date night in the
+                  universe!
+                </p>
+
+                <div class="cookoff-result-summary">
+                  <div class="result-summary-item">
+                    <span>Total Score:</span>
+                    <strong id="cookoff-final-score">0</strong>
+                  </div>
+                  <div class="result-summary-item">
+                    <span>Dishes Completed:</span>
+                    <strong id="cookoff-final-dishes">0 Dishes</strong>
+                  </div>
+                  <div class="result-summary-item highlight">
+                    <span>Cooking Record:</span>
+                    <strong id="cookoff-modal-highscore">0</strong>
+                  </div>
+                </div>
+
+                <div class="result-actions">
+                  <button type="button" id="cookoff-retry-btn" class="glow-button result-btn">
+                    <i data-lucide="rotate-ccw"></i>
+                    <span>Cook Again 🍳</span>
+                  </button>
+                  <button type="button" id="cookoff-back-to-book-btn" class="secondary-btn result-btn">
+                    <i data-lucide="book-open"></i>
+                    <span>Open Cookbook 📖</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- 6. COSMIC BEATS: PIANO TILES RHYTHM MINI GAME -->
+        <div id="rhythm-wrapper" class="arena-content-box rhythm-game-container" style="display: none;">
+          <div class="rhythm-frame">
+
+            <!-- A. PRE-GAME / LOBBY SCREEN -->
+            <div id="rhythm-select-screen" class="rhythm-screen">
+              <div class="rhythm-header-badge">COSMIC RHYTHM ARENA</div>
+              <h3 class="rhythm-main-title cinzel-title">Cosmic Beats 🎹</h3>
+              <p class="rhythm-sub-desc">
+                Tap the 4 note lanes to the rhythm of our love melody! Rack up the highest score, keep your combos
+                alive, and become the True Virtuoso of Love!
+              </p>
+
+              <!-- HIGHSCORE VERSUS BOARD -->
+              <div class="rhythm-versus-board">
+                <div class="rhythm-vs-header">
+                  <div class="rhythm-vs-heading-wrap">
+                    <div class="vs-header-supertitle">
+                      <i data-lucide="trophy" class="vs-trophy-icon"></i>
+                      <span>HIGHEST SCORE LEADERBOARD</span>
+                    </div>
+                    <h4 class="vs-active-meta">
+                      <span class="vs-active-song" id="vs-current-song-badge">🎵 ILYSB (I Love You So Bad)</span>
+                      <span class="vs-meta-dot">•</span>
+                      <span class="vs-active-mode" id="vs-current-mode-badge">Full Song Mode 🎵</span>
+                    </h4>
+                    <p class="vs-header-hint">
+                      <i data-lucide="info" class="vs-info-icon"></i> Records below automatically switch according to
+                      the song &amp;
+                      mode you select below
+                    </p>
+                  </div>
+                  <div class="rhythm-lead-badge" id="rhythm-lead-status">
+                    <span>⏳ No Record Yet</span>
+                  </div>
+                </div>
+
+                <div class="rhythm-vs-columns">
+                  <!-- Rachel's Column -->
+                  <div class="rhythm-player-col rachel-col">
+                    <div class="rhythm-crown-icon" id="rhythm-crown-rachel">👑</div>
+                    <div class="rhythm-col-avatar">
+                      <img src="assets/images/head-rachel.svg" alt="Rachel">
+                    </div>
+                    <div class="rhythm-col-name">Rachel</div>
+                    <div class="rhythm-col-role">The Potterhead Biologist</div>
+                    <div class="rhythm-col-score">
+                      <small>High Score</small>
+                      <strong id="rhythm-highscore-rachel">0</strong>
+                    </div>
+                  </div>
+
+                  <div class="rhythm-vs-divider">
+                    <span>VS</span>
+                  </div>
+
+                  <!-- Elang's Column -->
+                  <div class="rhythm-player-col elang-col">
+                    <div class="rhythm-crown-icon" id="rhythm-crown-elang" style="display: none;">👑</div>
+                    <div class="rhythm-col-avatar">
+                      <img src="assets/images/head-elang.svg" alt="Elang">
+                    </div>
+                    <div class="rhythm-col-name">Elang</div>
+                    <div class="rhythm-col-role">The Offshore Physicist</div>
+                    <div class="rhythm-col-score">
+                      <small>High Score</small>
+                      <strong id="rhythm-highscore-elang">0</strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- PILIH KARAKTER BERMAIN -->
+              <div class="rhythm-section-block">
+                <h4 class="rhythm-block-title">
+                  <i data-lucide="user-check"></i> 1. Choose Your Character
+                </h4>
+                <div class="rhythm-char-picker">
+                  <div class="rhythm-char-card active" id="rhythm-choose-rachel" data-char="rachel">
+                    <div class="char-halo halo-rachel"></div>
+                    <img src="assets/images/head-rachel.svg" alt="Rachel" class="char-picker-img">
+                    <div class="char-picker-info">
+                      <span class="char-picker-badge rachel-badge">👸🏻 Primary Choice</span>
+                      <strong>Rachel</strong>
+                      <p>Hogwarts rhythm magic & EXO silver galaxy aura</p>
+                    </div>
+                    <div class="char-radio-icon"><i data-lucide="check-circle-2"></i></div>
+                  </div>
+
+                  <div class="rhythm-char-card" id="rhythm-choose-elang" data-char="elang">
+                    <div class="char-halo halo-elang"></div>
+                    <img src="assets/images/head-elang.svg" alt="Elang" class="char-picker-img">
+                    <div class="char-picker-info">
+                      <span class="char-picker-badge elang-badge">🤴🏻 Fierce Challenger</span>
+                      <strong>Elang</strong>
+                      <p>Fast physicist reflexes & MLBB dynamic tank duo</p>
+                    </div>
+                    <div class="char-radio-icon"><i data-lucide="circle"></i></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- PILIH MODE PERMAINAN -->
+              <div class="rhythm-section-block">
+                <h4 class="rhythm-block-title">
+                  <i data-lucide="sliders"></i> 2. Choose Game Mode
+                </h4>
+                <div class="rhythm-mode-picker">
+                  <div class="rhythm-mode-card active" id="mode-full-song" data-mode="full">
+                    <div class="mode-icon-circle">🎵</div>
+                    <div class="mode-details">
+                      <strong>Full Song Mode</strong>
+                      <p>Play chosen track from start to finish. Aim for 100% accuracy and 5 stars!</p>
+                      <span class="mode-tag-pill">Complete Track Goal</span>
+                    </div>
+                    <div class="mode-radio-icon"><i data-lucide="check-circle-2"></i></div>
+                  </div>
+
+                  <div class="rhythm-mode-card" id="mode-endless" data-mode="endless">
+                    <div class="mode-icon-circle">♾️</div>
+                    <div class="mode-details">
+                      <strong>Endless Mode</strong>
+                      <p>Tiles descend non-stop and accelerate! Survive with your 3 lives (❤️❤️❤️).</p>
+                      <span class="mode-tag-pill endless-pill">Gradual Speedup</span>
+                    </div>
+                    <div class="mode-radio-icon"><i data-lucide="circle"></i></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- PENCARIAN & PEMILIHAN LAGU (10 LAGU) -->
+              <div class="rhythm-section-block">
+                <div class="rhythm-song-header-row">
+                  <h4 class="rhythm-block-title">
+                    <i data-lucide="music-2"></i> 3. Choose Favorite Track (<span id="rhythm-song-count">10</span>
+                    Songs)
+                  </h4>
+                  <div class="rhythm-filter-pills">
+                    <button type="button" class="rhythm-pill-btn active" data-filter="all">All</button>
+                    <button type="button" class="rhythm-pill-btn" data-filter="lany">LANY</button>
+                    <button type="button" class="rhythm-pill-btn" data-filter="exo">EXO</button>
+                    <button type="button" class="rhythm-pill-btn" data-filter="pop">Pop & Indie</button>
+                  </div>
+                </div>
+
+                <!-- SEARCH BAR -->
+                <div class="rhythm-search-bar">
+                  <i data-lucide="search" class="search-icon"></i>
+                  <input type="text" id="rhythm-search-input"
+                    placeholder="Type song title or artist (e.g. LANY, EXO, Growl, Mama...)" autocomplete="off">
+                  <button type="button" id="rhythm-clear-search-btn" class="clear-search-btn"
+                    style="display: none;">&times;</button>
+                </div>
+
+                <!-- SONG LIST GRID -->
+                <div class="rhythm-songs-grid" id="rhythm-songs-grid">
+                  <!-- Rendered dynamically via JavaScript -->
+                </div>
+              </div>
+
+              <!-- TOMBOL MULAI BERMAIN -->
+              <div class="rhythm-start-action">
+                <button type="button" id="rhythm-start-btn" class="glow-button rhythm-main-start-btn">
+                  <i data-lucide="play"></i>
+                  <span>Start Playing Music 🎶</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- B. ACTIVE PLAY SCREEN -->
+            <div id="rhythm-play-screen" class="rhythm-screen" style="display: none;">
+              <!-- TOP HUD -->
+              <div class="rhythm-hud-top">
+                <div class="rhythm-hud-left">
+                  <div class="rhythm-hud-player-halo" id="rhythm-hud-player-halo">
+                    <img id="rhythm-hud-player-img" src="assets/images/head-rachel.svg" alt="Player">
+                  </div>
+                  <div class="rhythm-hud-player-info">
+                    <strong id="rhythm-hud-player-name">Rachel</strong>
+                    <span id="rhythm-hud-mode-badge" class="hud-mode-pill">Lagu Penuh</span>
+                  </div>
+                </div>
+
+                <div class="rhythm-hud-center">
+                  <div class="rhythm-song-playing-title" id="rhythm-hud-song-title">ILYSB (I Love You So Bad)</div>
+                  <div class="rhythm-hud-score-box">
+                    <span class="hud-score-val" id="rhythm-current-score">0</span>
+                    <span class="hud-target-label">Record: <span id="rhythm-target-record">0</span></span>
+                  </div>
+
+                  <!-- Full song progress / Endless Lives -->
+                  <div id="rhythm-full-progress-wrap" class="rhythm-progress-wrap">
+                    <div class="rhythm-progress-bar">
+                      <div id="rhythm-progress-fill" class="rhythm-progress-fill" style="width: 0%;"></div>
+                    </div>
+                    <span id="rhythm-progress-text" class="rhythm-progress-text">0:00 / 3:30</span>
+                  </div>
+
+                  <div id="rhythm-endless-lives-wrap" class="rhythm-endless-wrap" style="display: none;">
+                    <div class="endless-hearts" id="rhythm-hearts">❤️❤️❤️</div>
+                    <span class="endless-speed-tag" id="rhythm-speed-tag">Speed: 1.0x</span>
+                  </div>
+                </div>
+
+                <div class="rhythm-hud-right">
+                  <button type="button" id="rhythm-quit-btn" class="rhythm-quit-btn" title="Return to Song Menu">
+                    <i data-lucide="x"></i>
+                    <span>Menu</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- MAIN RHYTHM TRACK CONTAINER -->
+              <div class="rhythm-stage-container">
+                <!-- Floating Toast / Judgment & Combo -->
+                <div class="rhythm-floating-center">
+                  <div id="rhythm-combo-banner" class="rhythm-combo-banner" style="display: none;">
+                    <span id="rhythm-combo-count" class="combo-number">10</span>
+                    <span class="combo-label">COMBO! 🔥</span>
+                  </div>
+                  <div id="rhythm-judgment-pop" class="rhythm-judgment-pop" style="display: none;">PERFECT! ✨</div>
+                </div>
+
+                <!-- 4 LANES CANVAS -->
+                <canvas id="rhythm-canvas" width="440" height="580"></canvas>
+
+                <!-- TOUCH & KEYBOARD CONTROLS BAR (4 LANES) -->
+                <div class="rhythm-controls-bar">
+                  <button type="button" class="rhythm-lane-btn" data-lane="0" id="rhythm-btn-0">
+                    <span class="lane-key-hint">D</span>
+                    <span class="lane-touch-ring"></span>
+                  </button>
+                  <button type="button" class="rhythm-lane-btn" data-lane="1" id="rhythm-btn-1">
+                    <span class="lane-key-hint">F</span>
+                    <span class="lane-touch-ring"></span>
+                  </button>
+                  <button type="button" class="rhythm-lane-btn" data-lane="2" id="rhythm-btn-2">
+                    <span class="lane-key-hint">J</span>
+                    <span class="lane-touch-ring"></span>
+                  </button>
+                  <button type="button" class="rhythm-lane-btn" data-lane="3" id="rhythm-btn-3">
+                    <span class="lane-key-hint">K</span>
+                    <span class="lane-touch-ring"></span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Toast notification -->
+              <div id="rhythm-toast" class="rhythm-toast" style="display: none;"></div>
+            </div>
+
+            <!-- C. RESULT MODAL -->
+            <div id="rhythm-result-modal" class="rhythm-modal" style="display: none;">
+              <div class="rhythm-modal-card">
+                <div class="result-stars" id="rhythm-result-stars">⭐⭐⭐⭐⭐</div>
+                <h3 class="cinzel-title" id="rhythm-result-title">True Love Virtuoso! 🌟</h3>
+                <p id="rhythm-result-verdict" class="result-verdict">
+                  Your fingertips hold pure magic! Our love melody echoes gorgeously throughout the entire galaxy!
+                </p>
+
+                <div class="rhythm-result-stats-grid">
+                  <div class="result-stat-card primary-stat">
+                    <span class="stat-lbl">Final Score</span>
+                    <strong id="rhythm-final-score">0</strong>
+                    <span class="new-record-pill" id="rhythm-new-record-badge" style="display: none;">NEW RECORD!
+                      🏆</span>
+                  </div>
+                  <div class="result-stat-card">
+                    <span class="stat-lbl">Max Combo</span>
+                    <strong id="rhythm-final-combo">0x</strong>
+                  </div>
+                  <div class="result-stat-card">
+                    <span class="stat-lbl">Accuracy</span>
+                    <strong id="rhythm-final-accuracy">100%</strong>
+                  </div>
+                  <div class="result-stat-card">
+                    <span class="stat-lbl">Best Record</span>
+                    <strong id="rhythm-modal-highscore">0</strong>
+                  </div>
+                </div>
+
+                <div class="rhythm-judgment-breakdown">
+                  <span class="breakdown-tag perfect"><small>Perfect:</small> <strong
+                      id="rhythm-count-perfect">0</strong></span>
+                  <span class="breakdown-tag great"><small>Great:</small> <strong
+                      id="rhythm-count-great">0</strong></span>
+                  <span class="breakdown-tag good"><small>Good:</small> <strong id="rhythm-count-good">0</strong></span>
+                  <span class="breakdown-tag miss"><small>Miss:</small> <strong id="rhythm-count-miss">0</strong></span>
+                </div>
+
+                <div class="result-actions">
+                  <button type="button" id="rhythm-retry-btn" class="glow-button result-btn">
+                    <i data-lucide="rotate-ccw"></i>
+                    <span>Play Again 🔄</span>
+                  </button>
+                  <button type="button" id="rhythm-back-to-menu-btn" class="secondary-btn result-btn">
+                    <i data-lucide="music"></i>
+                    <span>Change Song / Menu 🎵</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- 7. COSMIC DROP: LOVE SYNTHESIS (SUIKA PLANET DROP & MERGE) -->
+        <div id="suika-wrapper" class="arena-content-box suika-game-container" style="display: none;">
+          <div class="suika-frame">
+
+            <!-- A. PRE-GAME / LOBBY SCREEN -->
+            <div id="suika-select-screen" class="suika-screen">
+              <div class="suika-header-badge">COSMIC ORBITAL SYNTHESIS</div>
+              <h3 class="cinzel-title suika-main-title">Cosmic Drop: Love Synthesis 🪐</h3>
+              <p class="suika-sub-desc">
+                Drop planets from orbit and merge two identical planets into a more magnificent celestial body! Starting
+                from Mercury all the way to birthing the warm glow of the Sun!
+              </p>
+
+              <!-- HIGHSCORE VERSUS BOARD -->
+              <div class="suika-versus-board">
+                <div class="suika-vs-header">
+                  <div class="suika-vs-heading-wrap">
+                    <div class="suika-header-supertitle">
+                      <i data-lucide="trophy" class="suika-trophy-icon"></i>
+                      <span>HIGHEST SCORE LEADERBOARD</span>
+                    </div>
+                    <h4 class="suika-active-meta">
+                      <span class="suika-active-mode" id="suika-current-mode-label">Target Mode 🎯</span>
+                      <span class="suika-meta-dot">•</span>
+                      <span class="suika-active-diff" id="suika-current-diff-label">Medium Level 🟡</span>
+                    </h4>
+                    <p class="suika-header-hint">
+                      <i data-lucide="info" class="suika-info-icon"></i> Records below automatically switch according to
+                      the mode
+                      &amp; level you select below
+                    </p>
+                  </div>
+                  <div class="suika-lead-badge" id="suika-lead-status">
+                    <span>⏳ No Record Yet</span>
+                  </div>
+                </div>
+
+                <div class="suika-vs-columns">
+                  <!-- Rachel's Column -->
+                  <div class="suika-player-col rachel-col">
+                    <div class="suika-crown-icon" id="suika-crown-rachel" style="display: none;">👑</div>
+                    <div class="suika-col-avatar">
+                      <img src="assets/images/head-rachel.svg" alt="Rachel">
+                    </div>
+                    <div class="suika-col-name">Rachel</div>
+                    <div class="suika-col-role">The Potterhead Biologist</div>
+                    <div class="suika-col-score">
+                      <small id="suika-score-label-rachel">Highest Planet</small>
+                      <strong id="suika-highscore-rachel">—</strong>
+                    </div>
+                  </div>
+
+                  <div class="suika-vs-divider">
+                    <span>VS</span>
+                  </div>
+
+                  <!-- Elang's Column -->
+                  <div class="suika-player-col elang-col">
+                    <div class="suika-crown-icon" id="suika-crown-elang" style="display: none;">👑</div>
+                    <div class="suika-col-avatar">
+                      <img src="assets/images/head-elang.svg" alt="Elang">
+                    </div>
+                    <div class="suika-col-name">Elang</div>
+                    <div class="suika-col-role">The Physics Tech Wizard</div>
+                    <div class="suika-col-score">
+                      <small id="suika-score-label-elang">Highest Planet</small>
+                      <strong id="suika-highscore-elang">—</strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 1. CHOOSE PLAYER CHARACTER -->
+              <div class="suika-config-section">
+                <div class="suika-section-title">
+                  <i data-lucide="user-check"></i>
+                  <span>1. Choose Playing Character</span>
+                </div>
+                <div class="suika-character-cards">
+                  <!-- Rachel -->
+                  <div class="suika-char-card active" id="suika-choose-rachel" data-player="rachel">
+                    <div class="suika-char-halo">
+                      <img src="assets/images/head-rachel.svg" alt="Rachel">
+                    </div>
+                    <div class="suika-char-info">
+                      <h4>Rachel 💖</h4>
+                      <p>Lavender galaxy aura &amp; magical biological gentle touch</p>
+                    </div>
+                    <div class="suika-char-check">
+                      <span class="suika-char-radio-icon">
+                        <i data-lucide="check-circle-2"></i>
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Elang -->
+                  <div class="suika-char-card" id="suika-choose-elang" data-player="elang">
+                    <div class="suika-char-halo halo-elang">
+                      <img src="assets/images/head-elang.svg" alt="Elang">
+                    </div>
+                    <div class="suika-char-info">
+                      <h4>Elang ⚡</h4>
+                      <p>Precise gravity calculations &amp; cosmic velocity</p>
+                    </div>
+                    <div class="suika-char-check">
+                      <span class="suika-char-radio-icon">
+                        <i data-lucide="circle"></i>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2. CHOOSE GAME MODE -->
+              <div class="suika-config-section">
+                <div class="suika-section-title">
+                  <i data-lucide="gamepad-2"></i>
+                  <span>2. Choose Game Mode</span>
+                </div>
+                <div class="suika-mode-cards">
+                  <!-- Mode Target -->
+                  <div class="suika-mode-card active" id="suika-mode-target" data-mode="target">
+                    <div class="suika-mode-icon">🎯</div>
+                    <div class="suika-mode-info">
+                      <h4>Target Mode (Synthesis Mission)</h4>
+                      <p>Synthesize planets step by step until you successfully birth the Sun ☀️ of our love!</p>
+                      <span class="suika-mode-badge-tag">Achievement Goal ✨</span>
+                    </div>
+                    <div class="suika-mode-check">
+                      <span class="suika-mode-radio-icon">
+                        <i data-lucide="check-circle-2"></i>
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Mode Endless -->
+                  <div class="suika-mode-card" id="suika-mode-endless" data-mode="endless">
+                    <div class="suika-mode-icon">♾️</div>
+                    <div class="suika-mode-info">
+                      <h4>Endless Mode</h4>
+                      <p>Play without an end goal! Accumulate the highest score possible before the jar overflows.</p>
+                      <span class="suika-mode-badge-tag">Survival Test 🌌</span>
+                    </div>
+                    <div class="suika-mode-check">
+                      <span class="suika-mode-radio-icon">
+                        <i data-lucide="circle"></i>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 3. CHOOSE DIFFICULTY LEVEL -->
+              <div class="suika-config-section">
+                <div class="suika-section-title">
+                  <i data-lucide="sliders"></i>
+                  <span>3. Choose Difficulty Level</span>
+                </div>
+                <div class="suika-diff-cards">
+                  <!-- Easy -->
+                  <div class="suika-diff-card" id="suika-diff-easy" data-diff="easy">
+                    <div class="suika-diff-header">
+                      <span class="diff-badge easy">Easy 🟢</span>
+                      <span class="suika-diff-radio-icon"><i data-lucide="circle"></i></span>
+                    </div>
+                    <div class="suika-diff-body">
+                      <strong>Harmonious &amp; Orderly:</strong>
+                      <p><em>Mercury to Earth</em> with intuitive patterns</p>
+                      <small>Frequently spawns twin pairs to assist combos</small>
+                    </div>
+                  </div>
+
+                  <!-- Medium -->
+                  <div class="suika-diff-card active" id="suika-diff-medium" data-diff="medium">
+                    <div class="suika-diff-header">
+                      <span class="diff-badge medium">Medium 🟡</span>
+                      <span class="suika-diff-radio-icon"><i data-lucide="check-circle-2"></i></span>
+                    </div>
+                    <div class="suika-diff-body">
+                      <strong>Dynamic Rhythm:</strong>
+                      <p><em>Mercury to Earth</em> in varied sequences</p>
+                      <small>Moderate randomness requiring spatial adaptability</small>
+                    </div>
+                  </div>
+
+                  <!-- Hard -->
+                  <div class="suika-diff-card" id="suika-diff-hard" data-diff="hard">
+                    <div class="suika-diff-header">
+                      <span class="diff-badge hard">Hard 🔴</span>
+                      <span class="suika-diff-radio-icon"><i data-lucide="circle"></i></span>
+                    </div>
+                    <div class="suika-diff-body">
+                      <strong>Maximum Chaos:</strong>
+                      <p><em>Mercury to Earth</em> with full cosmic randomness</p>
+                      <small>No assisting patterns; Earth &amp; Venus drop unexpectedly!</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 4. PLANET EVOLUTION GUIDE TREE -->
+              <div class="suika-config-section">
+                <div class="suika-section-title">
+                  <i data-lucide="orbit"></i>
+                  <span>Planet Evolution Map (From Smallest to Largest)</span>
+                </div>
+                <div class="suika-evolution-guide">
+                  <div class="evo-chain">
+                    <div class="evo-item" title="1. Mercury"><span class="evo-dot p0"></span><small>Mercury</small>
+                    </div>
+                    <span class="evo-arrow">➔</span>
+                    <div class="evo-item" title="2. Mars"><span class="evo-dot p1"></span><small>Mars</small></div>
+                    <span class="evo-arrow">➔</span>
+                    <div class="evo-item" title="3. Venus"><span class="evo-dot p2"></span><small>Venus</small></div>
+                    <span class="evo-arrow">➔</span>
+                    <div class="evo-item" title="4. Earth"><span class="evo-dot p3"></span><small>Earth</small></div>
+                    <span class="evo-arrow">➔</span>
+                    <div class="evo-item" title="5. Neptune"><span class="evo-dot p4"></span><small>Neptune</small>
+                    </div>
+                    <span class="evo-arrow">➔</span>
+                    <div class="evo-item" title="6. Uranus"><span class="evo-dot p5"></span><small>Uranus</small></div>
+                    <span class="evo-arrow">➔</span>
+                    <div class="evo-item" title="7. Saturn"><span class="evo-dot p6"></span><small>Saturn</small>
+                    </div>
+                    <span class="evo-arrow">➔</span>
+                    <div class="evo-item" title="8. Jupiter"><span class="evo-dot p7"></span><small>Jupiter</small>
+                    </div>
+                    <span class="evo-arrow">➔</span>
+                    <div class="evo-item sun" title="9. Sun"><span class="evo-dot p8"></span><small>Sun
+                        ☀️</small></div>
+                  </div>
+                  <p class="suika-evo-note">
+                    ℹ️ <em>Only planets 1 through 4 (Earth) can drop from orbit. Planets 5 through 9 can only be
+                      forged through synthesis merging!</em>
+                  </p>
+                </div>
+              </div>
+
+              <!-- START GAME BUTTON -->
+              <div class="suika-start-action">
+                <button type="button" id="suika-start-btn" class="glow-button suika-play-btn">
+                  <i data-lucide="play-circle"></i>
+                  <span>Start Planet Synthesis 🪐</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- B. IN-GAME PLAY SCREEN -->
+            <div id="suika-play-screen" class="suika-screen" style="display: none;">
+              <!-- TOP HUD -->
+              <div class="suika-hud-top">
+                <div class="suika-hud-player">
+                  <div class="suika-hud-avatar" id="suika-hud-player-halo">
+                    <img id="suika-hud-player-img" src="assets/images/head-rachel.svg" alt="Player">
+                  </div>
+                  <div class="suika-hud-player-meta">
+                    <strong id="suika-hud-player-name">Rachel</strong>
+                    <div class="suika-hud-badges">
+                      <span class="hud-pill mode" id="suika-hud-mode-badge">Target 🎯</span>
+                      <span class="hud-pill diff" id="suika-hud-diff-badge">Medium 🟡</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="suika-hud-scores">
+                  <div class="suika-hud-score-card">
+                    <small>Current Score</small>
+                    <strong id="suika-current-score">0</strong>
+                  </div>
+                  <div class="suika-hud-score-card secondary">
+                    <small id="suika-hud-target-label">Target / Record</small>
+                    <strong id="suika-target-record">0</strong>
+                  </div>
+                </div>
+
+                <div class="suika-hud-next">
+                  <small>Ready &amp; Next Planet</small>
+                  <div class="suika-next-preview-box">
+                    <div class="suika-preview-slot" title="Ready to Drop">
+                      <span class="slot-lbl">Ready:</span>
+                      <canvas id="suika-current-preview-canvas" width="44" height="44"></canvas>
+                    </div>
+                    <div class="suika-preview-slot" title="Next Planet">
+                      <span class="slot-lbl">Next:</span>
+                      <canvas id="suika-next-preview-canvas" width="44" height="44"></canvas>
+                    </div>
+                  </div>
+                </div>
+
+                <button type="button" id="suika-quit-btn" class="suika-icon-btn" title="Exit / Switch Mode">
+                  <i data-lucide="x"></i>
+                </button>
+              </div>
+
+              <!-- MAIN GAME AREA (CANVAS CONTAINER) -->
+              <div class="suika-stage-container">
+                <div class="suika-canvas-wrap">
+                  <canvas id="suika-canvas" width="440" height="600"></canvas>
+                  <!-- Floating Warning Overlay for Danger Line -->
+                  <div id="suika-danger-alert" class="suika-danger-alert" style="display: none;">
+                    ⚠️ OVERFLOW WARNING: <span id="suika-danger-timer">3.0</span>s
+                  </div>
+                </div>
+
+                <!-- Onscreen Mobile Touch Dropper Controller -->
+                <div class="suika-mobile-controls">
+                  <button type="button" id="suika-ctrl-left" class="suika-ctrl-btn" title="Shift Left">
+                    <i data-lucide="arrow-left"></i>
+                  </button>
+                  <button type="button" id="suika-ctrl-drop" class="suika-ctrl-btn drop-btn" title="Drop Planet">
+                    <i data-lucide="arrow-down-circle"></i>
+                    <span>Drop 🪐</span>
+                  </button>
+                  <button type="button" id="suika-ctrl-right" class="suika-ctrl-btn" title="Shift Right">
+                    <i data-lucide="arrow-right"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- C. RESULT MODAL -->
+            <div id="suika-result-modal" class="suika-modal" style="display: none;">
+              <div class="suika-modal-card">
+                <div class="result-stars" id="suika-result-stars">⭐⭐⭐⭐⭐</div>
+                <h3 class="cinzel-title" id="suika-result-title">Flawless Cosmic Synthesis! ☀️</h3>
+                <p id="suika-result-verdict" class="result-verdict">
+                  Extraordinary! Two universes merged, birthing the unshakeable solar power of true love!
+                </p>
+
+                <div class="suika-result-stats-grid">
+                  <div class="result-stat-card primary-stat">
+                    <span class="stat-lbl">Final Score</span>
+                    <strong id="suika-final-score">0</strong>
+                    <span class="new-record-pill" id="suika-new-record-badge" style="display: none;">NEW RECORD!
+                      👑</span>
+                  </div>
+                  <div class="result-stat-card">
+                    <span class="stat-lbl">Highest Planet</span>
+                    <strong id="suika-final-planet">Earth 🌍</strong>
+                  </div>
+                  <div class="result-stat-card">
+                    <span class="stat-lbl">Total Merges</span>
+                    <strong id="suika-final-merges">0</strong>
+                  </div>
+                  <div class="result-stat-card">
+                    <span class="stat-lbl">Saved Record</span>
+                    <strong id="suika-modal-highscore">0</strong>
+                  </div>
+                </div>
+
+                <div class="result-actions">
+                  <button type="button" id="suika-retry-btn" class="glow-button result-btn">
+                    <i data-lucide="rotate-ccw"></i>
+                    <span>Play Again 🔄</span>
+                  </button>
+                  <button type="button" id="suika-back-to-menu-btn" class="secondary-btn result-btn">
+                    <i data-lucide="arrow-left"></i>
+                    <span>Back to Lobby 🪐</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- 8. LOVE DEFENSE: PLANTS VS ZOMBIES TOWER DEFENSE ARENA WRAPPER -->
+        <div id="defense-wrapper" class="arena-content-box defense-game-container" style="display: none;">
+          <div class="defense-frame">
+
+            <!-- A. PRE-GAME / LOBBY SCREEN -->
+            <div id="defense-select-screen" class="defense-screen">
+              <div class="defense-header-badge">ACADEMIC SIEGE & LOVE SHIELD</div>
+              <h3 class="cinzel-title defense-main-title">Love Defense: Fortress of Love 🏰⚡</h3>
+              <p class="defense-sub-desc">
+                Face the relentless waves of professors, dread college courses, and the ultimate boss <strong>Mr.
+                  Manuscript (Final Thesis)</strong>!
+                Plant your best defenses, gather energy, and protect your beloved until the very last stand!
+              </p>
+
+              <!-- CHARACTER SELECTION (RACHEL vs ELANG) -->
+              <div class="defense-section-card">
+                <div class="defense-card-header">
+                  <i data-lucide="user-check"></i>
+                  <span>CHOOSE COMMANDER & WHO YOU PROTECT</span>
+                </div>
+                <div class="defense-character-cards">
+                  <!-- Option A: Rachel (Biologi) -->
+                  <div class="defense-char-card active" data-char="rachel" id="defense-card-rachel">
+                    <div class="char-avatar-ring biologi-ring">
+                      <img src="assets/images/head-rachel.svg" alt="Rachel" class="char-select-avatar" />
+                    </div>
+                    <div class="char-details">
+                      <div class="char-role-badge biologi-badge">COMMANDER: RACHEL (BIOLOGY)</div>
+                      <h4 class="char-name">Rachel 🌸</h4>
+                      <p class="char-quote">
+                        "Elang, leave the botanical defenses to me! Stay safe behind me, I'll protect you from the
+                        Engineering Physics professors!"
+                      </p>
+                      <div class="char-specs">
+                        <div class="spec-item">
+                          <span class="spec-label">Protecting:</span>
+                          <strong class="spec-val highlight-val">Elang 🛡️</strong>
+                        </div>
+                        <div class="spec-item">
+                          <span class="spec-label">Tower Type:</span>
+                          <strong class="spec-val">Flora Species & Bio Cells 🌿</strong>
+                        </div>
+                        <div class="spec-item">
+                          <span class="spec-label">Zombie Wave:</span>
+                          <strong class="spec-val">Engineering Physics Faculty ⚙️</strong>
+                        </div>
+                      </div>
+                      <div class="char-selected-badge"><span>SELECTED</span> ✓</div>
+                    </div>
+                    <div class="char-radio-circle"><span class="check-mark">✓</span></div>
+                  </div>
+
+                  <!-- Option B: Elang (Teknik Fisika) -->
+                  <div class="defense-char-card" data-char="elang" id="defense-card-elang">
+                    <div class="char-avatar-ring fisika-ring">
+                      <img src="assets/images/head-elang.svg" alt="Elang" class="char-select-avatar" />
+                    </div>
+                    <div class="char-details">
+                      <div class="char-role-badge fisika-badge">COMMANDER: ELANG (ENGINEERING PHYSICS)</div>
+                      <h4 class="char-name">Elang ⚡</h4>
+                      <p class="char-quote">
+                        "Fear not, dearest Rachel! My photon reactors and quantum shields are ready to repel the Biology
+                        professors!"
+                      </p>
+                      <div class="char-specs">
+                        <div class="spec-item">
+                          <span class="spec-label">Protecting:</span>
+                          <strong class="spec-val highlight-val">Rachel 🛡️</strong>
+                        </div>
+                        <div class="spec-item">
+                          <span class="spec-label">Tower Type:</span>
+                          <strong class="spec-val">Applied Tech & Photon Lasers ⚛️</strong>
+                        </div>
+                        <div class="spec-item">
+                          <span class="spec-label">Zombie Wave:</span>
+                          <strong class="spec-val">Biology Faculty & Courses 🔬</strong>
+                        </div>
+                      </div>
+                      <div class="char-selected-badge"><span>SELECTED</span> ✓</div>
+                    </div>
+                    <div class="char-radio-circle"><span class="check-mark">✓</span></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- LOBBY INTEL / DOSEN & MATKUL INTEL ACCORDION -->
+              <div class="defense-intel-banner">
+                <div class="intel-col">
+                  <div class="intel-title"><i data-lucide="skull"></i> Enemy Hierarchy:</div>
+                  <div class="intel-text">
+                    <strong>Courses (Weak)</strong> &lt; <strong>Pak Suyanto/Arif</strong> (Light) &lt; <strong>Pak
+                      Bambang/Bu Eni</strong> &lt; <strong>Pak Syamsul/Pak Maya</strong> &lt; <strong>Bu Katherin/Pak
+                      Kamal</strong> &lt; <strong>Pak Ridho/Bu Iska</strong> (Tankiest)!
+                  </div>
+                </div>
+                <div class="intel-col">
+                  <div class="intel-title"><i data-lucide="alert-triangle"></i> Final Thesis Boss:</div>
+                  <div class="intel-text">
+                    Mr. Manuscript is <strong>immune for 30 seconds</strong> while summoning waves, then halts for 10
+                    seconds unleashing a <strong>Walking Giant Book</strong> that crushes everything in its path!
+                    Destroy that book, then strike down Mr. Manuscript!
+                  </div>
+                </div>
+              </div>
+
+              <!-- HIGH SCORE / VERSUS BOARD -->
+              <div class="defense-versus-board">
+                <div class="defense-vs-header">
+                  <i data-lucide="trophy"></i>
+                  <span>LOVE DEFENSE RECORDS</span>
+                </div>
+                <div class="defense-vs-grid">
+                  <div class="defense-score-card">
+                    <span class="defense-score-tag">Rachel Shielding Elang</span>
+                    <div class="defense-score-val" id="defense-best-rachel">0 Victories</div>
+                    <small id="defense-best-rachel-time">Fastest Time: --</small>
+                  </div>
+                  <div class="defense-score-card">
+                    <span class="defense-score-tag">Elang Shielding Rachel</span>
+                    <div class="defense-score-val" id="defense-best-elang">0 Victories</div>
+                    <small id="defense-best-elang-time">Fastest Time: --</small>
+                  </div>
+                </div>
+              </div>
+
+              <!-- START BUTTON -->
+              <div class="defense-lobby-actions">
+                <button type="button" id="defense-start-btn" class="glow-button defense-play-btn">
+                  <i data-lucide="swords"></i>
+                  <span>Commence Battle of Love! 🏰🛡️</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- B. IN-GAME BATTLE VIEW -->
+            <div id="defense-game-screen" class="defense-screen" style="display: none;">
+
+              <!-- TOP HUD (BOSS HP BAR, ENERGY COUNTER, BOSS TIMER, CONTROLS) -->
+              <div class="defense-hud-top">
+
+                <!-- Left: Energy Counter -->
+                <div class="defense-energy-badge" id="defense-energy-container">
+                  <span class="energy-icon" id="defense-energy-icon">🧬</span>
+                  <div class="energy-info">
+                    <span class="energy-label" id="defense-energy-label">ATP</span>
+                    <strong class="energy-val" id="defense-energy-val">150</strong>
+                  </div>
+                </div>
+
+                <!-- Center: Boss HP & Phase Status -->
+                <div class="defense-boss-hud" id="defense-boss-hud">
+                  <div class="boss-hud-header">
+                    <span class="boss-name-tag">
+                      <i data-lucide="crown"></i>
+                      <strong id="defense-boss-title">BOSS: MR. MANUSCRIPT (FINAL THESIS)</strong>
+                    </span>
+                    <span class="boss-phase-badge" id="defense-boss-phase-badge">IMMUNE (30s) 🛡️</span>
+                  </div>
+                  <div class="boss-hp-track">
+                    <div id="defense-boss-hp-fill" class="boss-hp-fill" style="width: 100%;"></div>
+                    <span id="defense-boss-hp-text" class="boss-hp-text">4000 / 4000 HP</span>
+                  </div>
+                </div>
+
+                <!-- Right: Game Controls (Pause, Exit) -->
+                <div class="defense-top-actions">
+                  <button type="button" id="defense-pause-btn" class="defense-icon-btn" title="Pause Game">
+                    <i data-lucide="pause"></i>
+                  </button>
+                  <button type="button" id="defense-exit-btn" class="defense-icon-btn" title="Return to Lobby">
+                    <i data-lucide="arrow-left"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- SEED BANK / PLANT TOOLBAR -->
+              <div class="defense-toolbar-wrap">
+                <div class="defense-seed-bank" id="defense-seed-bank">
+                  <!-- Dynamically populated seed cards -->
+                </div>
+                <div class="defense-tool-slots">
+                  <button type="button" id="defense-shovel-btn" class="defense-shovel-card"
+                    title="Shovel: Remove Plant/Tower">
+                    <span class="tool-icon">🧹</span>
+                    <span class="tool-name">Shovel</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- MAIN BATTLE CANVAS WRAPPER -->
+              <div class="defense-canvas-wrap">
+                <canvas id="defense-canvas" width="850" height="420"></canvas>
+                <!-- Touch overlay alert for book phase -->
+                <div id="defense-alert-banner" class="defense-alert-banner" style="display: none;">
+                  <span id="defense-alert-text">⚠️ MR. MANUSCRIPT SUMMONS A WALKING GIANT BOOK! 📖⚠️</span>
+                </div>
+              </div>
+
+              <!-- BOTTOM BATTLE STATUS -->
+              <div class="defense-battle-footer">
+                <div class="defense-prot-indicator">
+                  <span class="prot-avatar-mini" id="defense-partner-avatar-indicator">🛡️</span>
+                  <span class="prot-text" id="defense-partner-name-indicator">Protecting: <strong>Elang</strong></span>
+                  <div class="prot-hearts" id="defense-partner-hearts">
+                    <span class="heart-icon">❤️</span>
+                    <span class="heart-icon">❤️</span>
+                    <span class="heart-icon">❤️</span>
+                  </div>
+                </div>
+                <div class="defense-tip-text">
+                  <i data-lucide="info"></i>
+                  <span>Select a plant above then tap grass to place it. Tap falling energy to harvest!</span>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- C. RESULT MODAL (VICTORY / DEFEAT) -->
+            <div id="defense-result-modal" class="modal defense-result-modal" style="display: none;">
+              <div class="modal-content defense-result-content">
+                <div class="result-banner-icon" id="defense-result-icon">🎓</div>
+                <h3 class="cinzel-title result-title" id="defense-result-title">THESIS DEFENDED! LOVE GRADUATION!
+                </h3>
+                <p id="defense-result-verdict" class="result-verdict">
+                  Congratulations! Mr. Manuscript has been defeated! Your love and shared dedication overcame every
+                  academic hurdle in the universe!
+                </p>
+
+                <div class="defense-result-stats-grid">
+                  <div class="result-stat-card primary-stat">
+                    <span class="stat-lbl">Battle Outcome</span>
+                    <strong id="defense-final-outcome">VICTORY 🎉</strong>
+                  </div>
+                  <div class="result-stat-card">
+                    <span class="stat-lbl">Enemies Defeated</span>
+                    <strong id="defense-final-kills">0</strong>
+                  </div>
+                  <div class="result-stat-card">
+                    <span class="stat-lbl">Elapsed Time</span>
+                    <strong id="defense-final-time">00:00</strong>
+                  </div>
+                  <div class="result-stat-card">
+                    <span class="stat-lbl">Energy Harvested</span>
+                    <strong id="defense-final-energy">0</strong>
+                  </div>
+                </div>
+
+                <div class="result-actions">
+                  <button type="button" id="defense-retry-btn" class="glow-button result-btn">
+                    <i data-lucide="rotate-ccw"></i>
+                    <span>Battle Again ⚔️</span>
+                  </button>
+                  <button type="button" id="defense-back-to-menu-btn" class="secondary-btn result-btn">
+                    <i data-lucide="arrow-left"></i>
+                    <span>Back to Lobby 🏰</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 5: SECRET VAULT (SURAT CINTA & VOUCHER) -->
+      <section id="vault" class="view-section">
+        <div class="section-header">
+          <span class="section-tag">CONFIDENTIAL & ETERNAL</span>
+          <h2 class="cinzel-title">The Secret Vault</h2>
+          <p class="section-desc">
+            A letter written from the bottom of my heart, and special date coupons you can redeem anytime you wish.
+          </p>
+        </div>
+
+        <!-- HOGWARTS STYLE WAX SEAL LETTER -->
+        <div class="letter-vault-card">
+          <!-- Envelope View -->
+          <div id="sealed-envelope" class="envelope-box">
+            <div class="envelope-front">
+              <div class="envelope-stamp">3 YEARS • 0911</div>
+              <div class="wax-seal-btn" id="wax-seal-trigger" title="Click to break the wax seal">
+                <div class="seal-inner">
+                  <span class="seal-rune">⚡</span>
+                </div>
+              </div>
+              <div class="envelope-to">
+                <span class="handwritten-label">Special Delivery To:</span>
+                <h4 class="recipient-name">Rachel, My Heart & My Forever Home</h4>
+                <p class="recipient-sub">From: Elang • With Endless Love</p>
+              </div>
+              <div class="seal-hint">
+                <i data-lucide="sparkles"></i>
+                <span>Click the wax seal above to open the letter 💌</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Open Letter Paper View (Revealed on click) -->
+          <div id="opened-letter" class="letter-paper" style="display: none;">
+            <!-- Tombol Tutup di Pojok Kanan Atas -->
+            <button type="button" id="close-letter-top-btn" class="close-letter-x-btn"
+              title="Close / Fold Letter">&times;</button>
+
+            <div class="letter-inner">
+              <div class="letter-top-crest">
+                <span class="crest-text">🌌 TWO UNIVERSES • 3 YEARS OF ETERNAL ORBIT 🌌</span>
+                <span class="letter-date">9 November • 3rd Anniversary</span>
+              </div>
+
+              <h3 class="letter-salutation">To my dearest Love, Rachel,</h3>
+
+              <div id="letter-body-text" class="letter-body">
+                <p>
+                  Happy 3rd Anniversary, my love. It feels like a quiet miracle how three whole years have unfolded so
+                  beautifully since November 9, 2023. A thousand days of shared glances, gentle laughter, warm
+                  conversations,
+                  and learning that the greatest, most fulfilling adventure of my life is simply loving you.
+                </p>
+                <p>
+                  Three years together is not just a passage of time; it is a tapestry of everything we have weathered
+                  side by side. We have known the warmth of golden days when everything felt easy and bright, and we
+                  have
+                  walked through quiet storms, uncertainties, and the inevitable tides that tested our hearts. Yet with
+                  every ebb and flow of our love, we learned not to drift apart, but to hold each other a little closer,
+                  listen a little deeper, and choose each other with even greater certainty.
+                </p>
+                <p>
+                  We came together as two distinct universes, whispering our prayers in different sanctuaries. Yet under
+                  the very same heavens, I know that God lovingly guided our orbits to collide and intertwine. Our
+                  differences were never distances to divide us; they became the quiet, tender harmony that makes us
+                  whole.
+                  In a world that never stops rushing and shifting, holding your hand has always felt like arriving
+                  home.
+                  You are my sanctuary, my calm, and my steadfast peace.
+                </p>
+                <p>
+                  Thank you for walking this road with me through every season—through every joy, every trial, and every
+                  silent whisper in between. Thank you for your boundless patience, your gentle warmth, and for being
+                  the
+                  sweetest reason behind my smile every single day. Wherever tomorrow leads, I will always be right here
+                  beside you: to hold you, to celebrate you, to shelter you, and to love you unconditionally.
+                </p>
+                <p>
+                  Through everything we have passed and all that lies ahead, what we share is not fleeting. Like the
+                  song
+                  playing softly between us, our love is etched into eternity. <em>Ini abadi.</em>
+                </p>
+                <p class="letter-closing">
+                  <em>"After all this time? Always."</em>
+                </p>
+              </div>
+
+              <div class="letter-signature">
+                <span class="sig-title">With all my love,</span>
+                <p class="handwritten-signature">Elang</p>
+              </div>
+
+              <!-- Tombol Lipat & Simpan di Bagian Bawah Surat -->
+              <div class="close-letter-wrapper">
+                <button type="button" id="close-letter-bottom-btn" class="glow-button sec-btn close-letter-action-btn">
+                  <i data-lucide="archive"></i>
+                  <span>Fold & Store Letter Away</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SPECIAL ANNIVERSARY VOUCHERS -->
+        <div class="vouchers-section">
+          <h3 class="vouchers-title cinzel-title">Special Anniversary Date Vouchers</h3>
+          <p class="vouchers-desc">These coupons are officially valid for a lifetime and can be claimed whenever your
+            heart desires!</p>
+
+          <div class="voucher-grid">
+            <!-- Voucher 1 -->
+            <div class="voucher-card" id="voucher-1">
+              <div class="voucher-tag">LIFETIME VALIDITY</div>
+              <div class="voucher-icon">🍝</div>
+              <h4>All-You-Can-Eat Date</h4>
+              <p>Pick which restaurant in the world you crave—Elang's treat and Elang will keep you company until you're
+                completely satisfied!....... but, it will wait hehe, until I get enough money, because today I'm poor
+              </p>
+              <button class="claim-btn" onclick="claimVoucher(1, this)">
+                <span>Claim This Voucher 💖</span>
+              </button>
+            </div>
+
+            <!-- Voucher 2 -->
+            <div class="voucher-card" id="voucher-2">
+              <div class="voucher-tag">LIFETIME VALIDITY</div>
+              <div class="voucher-icon">🪄🎬</div>
+              <h4>Cuddle, Music, and Movie Marathon</h4>
+              <p>A cozy movie marathon of any films while listening to good music, complete with your favorite
+                snacks & warm cuddles</p>
+              <button class="claim-btn" onclick="claimVoucher(2, this)">
+                <span>Claim This Voucher 💖</span>
+              </button>
+            </div>
+
+            <!-- Voucher 3 -->
+            <div class="voucher-card" id="voucher-3">
+              <div class="voucher-tag">LIFETIME VALIDITY</div>
+              <div class="voucher-icon">🥺💆🏻‍♀️</div>
+              <h4>24-Hour Pout-Free Pass</h4>
+              <p>A magical pass! Whenever Rachel feels tired or stressed from biology studies, Elang is on duty to
+                gently stroke your hair, listen to your stories, and obey your every wish all day long.</p>
+              <button class="claim-btn" onclick="claimVoucher(3, this)">
+                <span>Claim This Voucher 💖</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- ==================== MOBILE BOTTOM NAVBAR ==================== -->
+    <nav class="mobile-bottom-nav">
+      <a href="#home" class="mobile-nav-link active" data-target="home">
+        <i data-lucide="home"></i>
+        <span>Home</span>
+      </a>
+      <a href="#story" class="mobile-nav-link" data-target="story">
+        <i data-lucide="dna"></i>
+        <span>Story</span>
+      </a>
+      <a href="#archives" class="mobile-nav-link" data-target="archives">
+        <i data-lucide="camera"></i>
+        <span>Memories</span>
+      </a>
+      <a href="#arena" class="mobile-nav-link" data-target="arena">
+        <i data-lucide="gamepad-2"></i>
+        <span>Arena</span>
+      </a>
+      <a href="#vault" class="mobile-nav-link" data-target="vault">
+        <i data-lucide="mail"></i>
+        <span>Vault</span>
+      </a>
+    </nav>
+
+    <!-- ==================== PHOTO MODAL VIEWER ==================== -->
+    <div id="photo-modal" class="modal-backdrop">
+      <div class="modal-card">
+        <button id="close-modal-btn" class="modal-close-btn" aria-label="Close Modal">&times;</button>
+        <div class="modal-img-area-wrapper">
+          <div id="modal-art-container" class="modal-img-area"></div>
+          <button id="modal-prev-btn" class="modal-nav-btn prev" aria-label="Previous Photo"
+            style="display:none;">&lsaquo;</button>
+          <button id="modal-next-btn" class="modal-nav-btn next" aria-label="Next Photo"
+            style="display:none;">&rsaquo;</button>
+          <div id="modal-counter-badge" class="modal-counter-badge" style="display:none;">1 / 1</div>
+        </div>
+        <div class="modal-content-area">
+          <span id="modal-date" class="modal-date-tag">09 Nov 2023</span>
+          <h3 id="modal-title" class="cinzel-title">Memory Title</h3>
+          <p id="modal-desc" class="modal-desc-text">Memory stories will appear here...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="app-footer">
+      <p>Crafted with endless love by <strong>Elang</strong> for <strong>Rachel</strong> 🖤</p>
+      <span class="footer-sub">Two Universes, One Eternal Orbit • 9 November 2023</span>
+    </footer>
+
+  </div>
+
+  <!-- Script -->
+  <script src="script.js"></script>
+</body>
+
+</html>
