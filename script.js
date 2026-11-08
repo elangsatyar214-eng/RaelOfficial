@@ -123,6 +123,11 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
+    // Lazy init Archives: probe foto hanya saat pertama buka menu Archives
+    if (targetId === 'archives') {
+      initPolaroidArchivesImages();
+    }
+
     // Scroll to top of content
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -507,6 +512,10 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Smart auto-detector for Archives photos & Multi-Photo Sliders (2025, 2024, 2023)
+  // Cache agar tidak perlu probe ulang setiap buka Archives
+  const imgResolvedCache = {};
+  let archivesInitialized = false;
+
   const ARCHIVES_EXTS = ['jpeg', 'jpg', 'png', 'webp', 'JPEG', 'JPG', 'PNG'];
 
   function probeSingleImage(src) {
@@ -520,8 +529,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function findWorkingImage(candidates) {
     for (const src of candidates) {
+      // Cek cache dulu sebelum probe network
+      if (imgResolvedCache[src] === true) return src;
+      if (imgResolvedCache[src] === false) continue;
       const ok = await probeSingleImage(src);
-      if (ok) return ok;
+      if (ok) {
+        imgResolvedCache[src] = true;
+        return ok;
+      } else {
+        imgResolvedCache[src] = false;
+      }
     }
     return null;
   }
@@ -670,9 +687,22 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function initPolaroidArchivesImages() {
+    if (archivesInitialized) return; // Jangan probe ulang jika sudah pernah dijalankan
+    archivesInitialized = true;
+
     const polaroidCards = document.querySelectorAll('.polaroid-card');
+
+    // Tambahkan shimmer placeholder ke setiap wrapper sebelum foto ditemukan
+    polaroidCards.forEach(card => {
+      const wrapper = card.querySelector('.polaroid-img-wrapper');
+      if (wrapper) wrapper.classList.add('loading');
+    });
+
     for (const card of polaroidCards) {
       const photos = await findPhotosForCard(card);
+      const wrapper = card.querySelector('.polaroid-img-wrapper');
+      if (wrapper) wrapper.classList.remove('loading');
+
       if (photos.length > 0) {
         setupCardSlider(card, photos);
       } else {
@@ -685,7 +715,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  initPolaroidArchivesImages();
+  // Lazy init: hanya jalankan probe saat pertama kali Archives dibuka
   window.handlePolaroidImgError = function(img) {};
 
   // Modal Multi-Photo Viewer

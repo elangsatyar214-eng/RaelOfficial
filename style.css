@@ -8929,3 +8929,330 @@ body {
     min-height: 48px;
   }
 }
+
+
+/* ===================================================================
+   PERFORMANCE & MOBILE POLISH — Lazy Load Shimmer + Global Mobile Fix
+   =================================================================== */
+
+/* ---------- Shimmer skeleton untuk foto Archives yang sedang dimuat ---------- */
+@keyframes shimmer-sweep {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.polaroid-img-wrapper.loading {
+  background: linear-gradient(
+    90deg,
+    #131929 25%,
+    #1f2d4a 50%,
+    #131929 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer-sweep 1.6s ease-in-out infinite;
+}
+
+.polaroid-img-wrapper.loading::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: inherit;
+  border-radius: inherit;
+  z-index: 1;
+}
+
+/* ---------- Mobile Bottom Nav: safe-area-inset untuk iPhone/Android modern ---------- */
+.mobile-bottom-nav {
+  padding-bottom: calc(0.6rem + env(safe-area-inset-bottom, 0px));
+}
+
+/* ===================================================================
+   GLOBAL MOBILE POLISH — @media (max-width: 600px)
+   Merapikan semua section agar rapi & proporsional di HP
+   =================================================================== */
+@media (max-width: 600px) {
+
+  /* ---- Content wrapper: kurangi padding sisi agar game/foto lebih lebar ---- */
+  .content-wrapper {
+    padding-left: 0.4rem !important;
+    padding-right: 0.4rem !important;
+    padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* ---- 1. Gatekeeper ---- */
+  .gatekeeper-card {
+    padding: 1.5rem 1rem !important;
+    margin: 0.5rem auto;
+  }
+
+  .gatekeeper-card h1,
+  .cinzel-title {
+    font-size: 1.55rem !important;
+    line-height: 1.25;
+    margin-bottom: 0.6rem;
+  }
+
+  .gatekeeper-subtitle {
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+  }
+
+  .password-input-wrapper input,
+  #pw-input {
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    min-height: 48px;
+  }
+
+  .unlock-btn,
+  #unlock-btn {
+    padding: 0.85rem 1.5rem;
+    font-size: 1rem;
+    min-height: 48px;
+  }
+
+  .pw-hint {
+    font-size: 0.78rem;
+    margin-top: 0.6rem;
+  }
+
+  /* ---- 2. Home (The Sanctuary) ---- */
+  .hero-headline {
+    font-size: 1.7rem !important;
+    line-height: 1.2;
+    margin-bottom: 0.6rem;
+  }
+
+  .hero-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+
+  .hero-badge {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.65rem;
+  }
+
+  .counter-card-wrapper {
+    padding: 1rem 0.75rem;
+  }
+
+  .counter-grid {
+    gap: 0.25rem;
+  }
+
+  .time-box {
+    min-width: 48px;
+  }
+
+  .time-digit {
+    font-size: 1.65rem !important;
+  }
+
+  .time-label {
+    font-size: 0.6rem;
+  }
+
+  .time-divider {
+    font-size: 1.3rem;
+  }
+
+  .lany-player-card {
+    padding: 0.75rem 0.85rem;
+  }
+
+  .player-vinyl {
+    width: 54px;
+    height: 54px;
+    flex-shrink: 0;
+  }
+
+  .player-song-name {
+    font-size: 0.85rem;
+  }
+
+  .player-song-artist {
+    font-size: 0.72rem;
+  }
+
+  /* ---- 3. Our Story ---- */
+  .duo-grid {
+    gap: 1.25rem !important;
+  }
+
+  .duo-card {
+    padding: 1.25rem 1rem;
+  }
+
+  .duo-name {
+    font-size: 1.3rem;
+  }
+
+  .timeline-item {
+    padding-left: 1.5rem;
+  }
+
+  .timeline-dot {
+    width: 10px;
+    height: 10px;
+    left: 0;
+  }
+
+  .timeline-date {
+    font-size: 0.72rem;
+  }
+
+  .timeline-desc {
+    font-size: 0.88rem;
+  }
+
+  /* ---- 4. Archives ---- */
+  #archives.view-section {
+    padding-left: 0.3rem !important;
+    padding-right: 0.3rem !important;
+  }
+
+  .archive-filter-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    justify-content: center;
+    margin-bottom: 1rem;
+    padding: 0 0.25rem;
+  }
+
+  .filter-tab-btn {
+    padding: 0.45rem 0.85rem;
+    font-size: 0.8rem;
+    min-height: 36px;
+  }
+
+  .polaroid-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    padding: 0 0.1rem;
+  }
+
+  .polaroid-card {
+    padding: 0.5rem 0.5rem 0.6rem;
+  }
+
+  .polaroid-title {
+    font-size: 0.72rem;
+  }
+
+  .polaroid-date-label {
+    font-size: 0.65rem;
+  }
+
+  .polaroid-slider-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 1.1rem;
+    min-width: 28px;
+    min-height: 28px;
+  }
+
+  /* ---- 5. Secret Vault ---- */
+  .envelope-box {
+    padding: 1.5rem 1rem;
+    max-width: 100%;
+  }
+
+  .wax-seal-stamp {
+    width: 72px;
+    height: 72px;
+    font-size: 0.65rem;
+  }
+
+  .envelope-to-label {
+    font-size: 0.8rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .open-envelope-btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+    min-height: 48px;
+  }
+
+  .letter-paper {
+    padding: 1.5rem 1rem !important;
+    font-size: 0.9rem;
+    line-height: 1.75;
+    max-width: 100%;
+  }
+
+  .letter-closing {
+    font-size: 0.88rem;
+  }
+
+  .voucher-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.75rem;
+    padding: 0 0.25rem;
+  }
+
+  .voucher-card {
+    padding: 1rem 0.85rem;
+  }
+
+  .voucher-title {
+    font-size: 0.95rem;
+  }
+
+  .voucher-desc {
+    font-size: 0.82rem;
+  }
+
+  /* ---- 6. Mobile Bottom Nav: z-index & safe area ---- */
+  .mobile-bottom-nav {
+    z-index: 9999 !important;
+    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px)) !important;
+    padding-top: 0.4rem;
+    height: auto;
+  }
+
+  .mobile-nav-link {
+    padding: 0.4rem 0.5rem;
+    font-size: 0.6rem;
+    gap: 2px;
+  }
+
+  .mobile-nav-link i,
+  .mobile-nav-link svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* ---- Extra small screens: <=380px ---- */
+@media (max-width: 380px) {
+  .hero-headline {
+    font-size: 1.45rem !important;
+  }
+
+  .time-digit {
+    font-size: 1.45rem !important;
+  }
+
+  .time-box {
+    min-width: 42px;
+  }
+
+  .polaroid-grid {
+    grid-template-columns: 1fr;
+  }
+
+  #arena .arena-tab-btn {
+    padding: 0.45rem 0.65rem;
+    font-size: 0.75rem;
+  }
+
+  .touch-control-btn {
+    min-height: 52px !important;
+  }
+}
