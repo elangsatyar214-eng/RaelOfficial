@@ -863,7 +863,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!gameOrientOverlay) return;
     const isPortrait = window.innerHeight > window.innerWidth;
     if (activeLandscapeGame && isPortrait && isMobileGameDevice()) {
-      gameOrientOverlay.style.display = 'flex';
+      gameOrientOverlay.style.display = 'block';
     } else {
       gameOrientOverlay.style.display = 'none';
     }
@@ -875,26 +875,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function requestGameLandscape(gameType) {
     activeLandscapeGame = gameType;
-    const targetWrapper = gameType === 'runner' ? runnerWrapper : defenseWrapper;
 
-    if (targetWrapper) {
-      targetWrapper.classList.add('game-landscape-active');
-    }
-    document.body.classList.add('game-landscape-lock');
-
-    // 1. Fullscreen API
-    try {
-      const el = targetWrapper || document.documentElement;
-      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-        if (el.requestFullscreen) {
-          await el.requestFullscreen({ navigationUI: 'hide' }).catch(() => {});
-        } else if (el.webkitRequestFullscreen) {
-          await el.webkitRequestFullscreen();
-        }
-      }
-    } catch (e) {}
-
-    // 2. Screen Orientation Lock API (Locks physical display to landscape on mobile)
+    // 1. Try Screen Orientation Lock API (Locks physical display to landscape on supported devices)
     try {
       if (screen.orientation && screen.orientation.lock) {
         await screen.orientation.lock('landscape').catch(() => {});
@@ -907,19 +889,16 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     } catch (e) {}
 
-    // 3. Check orientation helper overlay
+    // 2. Check orientation toast
     checkOrientationPrompt(gameType);
 
-    // 4. Trigger canvas resize updates
+    // 3. Trigger canvas resize updates
     setTimeout(() => {
       if (typeof updateDefenseCanvasRect === 'function') updateDefenseCanvasRect();
-    }, 250);
+    }, 200);
   }
 
   function exitGameLandscape() {
-    if (runnerWrapper) runnerWrapper.classList.remove('game-landscape-active');
-    if (defenseWrapper) defenseWrapper.classList.remove('game-landscape-active');
-    document.body.classList.remove('game-landscape-lock');
     hideOrientationPrompt();
 
     // Unlock screen orientation
@@ -951,8 +930,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function toggleGameLandscape(gameType) {
-    const targetWrapper = gameType === 'runner' ? runnerWrapper : defenseWrapper;
-    if (targetWrapper && (targetWrapper.classList.contains('game-landscape-active') || document.fullscreenElement)) {
+    if (activeLandscapeGame) {
       exitGameLandscape();
     } else {
       requestGameLandscape(gameType);

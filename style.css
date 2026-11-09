@@ -9264,8 +9264,7 @@ body {
 
 
 /* ===================================================================
-   ARENA LANDSCAPE MODE: REACH ANNIVERSARY & LOVE DEFENSE
-   Otomatis Landscape di HP, Fullscreen Handheld Console Experience
+   ARENA LANDSCAPE & MOBILE FIT: REACH ANNIVERSARY & LOVE DEFENSE
    =================================================================== */
 
 /* Runner HUD Action Buttons (Landscape & Exit) */
@@ -9282,8 +9281,8 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.18);
   color: #fff;
   border-radius: 8px;
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -9303,333 +9302,261 @@ body {
 .runner-icon-btn svg,
 .defense-icon-btn i,
 .defense-icon-btn svg {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
 }
 
-/* Body lock when landscape active */
-body.game-landscape-lock {
-  overflow: hidden !important;
+/* Ensure frames can scroll if content exceeds screen height */
+.level-devil-frame,
+.defense-frame {
+  max-width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
-body.game-landscape-lock .mobile-bottom-nav,
-body.game-landscape-lock .desktop-nav,
-body.game-landscape-lock .site-header {
-  display: none !important;
+/* ==================== 1. REACH ANNIVERSARY SIZING ==================== */
+/* Portrait / Default */
+#runner-canvas {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto !important;
+  aspect-ratio: 800 / 280 !important;
+  object-fit: contain !important;
+  display: block !important;
+  margin: 0 auto !important;
 }
 
-/* Landscape Active Container (Applied via JS on start or fullscreen) */
-.runner-game-container.game-landscape-active,
-.defense-game-container.game-landscape-active {
-  position: fixed !important;
-  inset: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-  max-width: 100vw !important;
-  max-height: 100vh !important;
-  z-index: 99999 !important;
-  background: #06070d !important;
-  overflow: hidden !important;
-  padding: calc(0.2rem + env(safe-area-inset-top, 0px)) calc(0.6rem + env(safe-area-inset-right, 0px)) calc(0.2rem + env(safe-area-inset-bottom, 0px)) calc(0.6rem + env(safe-area-inset-left, 0px)) !important;
-  margin: 0 !important;
-  border-radius: 0 !important;
+.runner-mobile-controls {
   display: flex !important;
-  flex-direction: column !important;
   justify-content: space-between !important;
+  gap: 0.75rem !important;
+  margin-top: 0.75rem !important;
+  width: 100% !important;
 }
 
-/* ==================== 1. REACH ANNIVERSARY (RUNNER) LANDSCAPE ==================== */
-.runner-game-container.game-landscape-active .level-devil-frame,
-@media (orientation: landscape) and (max-height: 550px) {
-  .runner-game-container .level-devil-frame {
-    height: 100% !important;
+.touch-control-btn {
+  flex: 1 !important;
+  padding: 0.85rem 0.5rem !important;
+  min-height: 52px !important;
+  font-size: 1rem !important;
+  border-radius: 10px !important;
+  font-weight: 800 !important;
+  cursor: pointer !important;
+}
+
+/* Landscape Mode for Reach Anniversary (When screen is actually rotated sideways) */
+@media (orientation: landscape) and (max-height: 600px) {
+  .level-devil-frame {
+    padding: 0.4rem 0.75rem !important;
     max-height: 100vh !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: space-between !important;
-    padding: 0.35rem 0.5rem !important;
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    overflow: hidden !important;
   }
 
-  .runner-game-container #runner-play-screen {
-    height: 100% !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: space-between !important;
-    position: relative !important;
+  .runner-hud {
+    padding: 0.25rem 0.5rem !important;
+    margin-bottom: 0.35rem !important;
+    gap: 0.5rem !important;
   }
 
-  .runner-game-container .runner-hud {
-    padding: 0.25rem 0.6rem !important;
-    margin-bottom: 0.25rem !important;
-    background: rgba(14, 17, 28, 0.85) !important;
-    border-radius: 8px !important;
-    flex-shrink: 0 !important;
-  }
-
-  .runner-game-container .canvas-stage-wrapper {
-    flex: 1 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    background: #06070d !important;
-    border: 1px solid rgba(255, 255, 255, 0.12) !important;
-    border-radius: 10px !important;
-    overflow: hidden !important;
+  .canvas-stage-wrapper {
+    max-width: 78vw !important;
     margin: 0 auto !important;
-    width: 100% !important;
-    max-height: calc(100vh - 75px) !important;
+    border-radius: 8px !important;
   }
 
-  .runner-game-container #runner-canvas {
-    max-height: calc(100vh - 80px) !important;
-    height: 100% !important;
+  #runner-canvas {
+    max-height: 48vh !important;
+    max-width: 78vw !important;
     width: auto !important;
-    max-width: 96vw !important;
+    height: auto !important;
     aspect-ratio: 800 / 280 !important;
     object-fit: contain !important;
-    margin: 0 auto !important;
-    display: block !important;
   }
 
-  /* Dual Thumb Gamepad Controls: Left = DUCK, Right = JUMP */
-  .runner-game-container .runner-mobile-controls {
-    position: fixed !important;
-    inset: 0 !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    pointer-events: none !important;
-    z-index: 100000 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    display: block !important;
+  .runner-mobile-controls {
+    max-width: 460px !important;
+    margin: 0.4rem auto 0 !important;
+    gap: 1.25rem !important;
   }
 
-  .runner-game-container .touch-control-btn {
-    position: absolute !important;
-    pointer-events: auto !important;
-    width: 86px !important;
-    height: 72px !important;
-    min-height: unset !important;
-    border-radius: 18px !important;
-    font-size: 1.05rem !important;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7) !important;
-    opacity: 0.88;
-    backdrop-filter: blur(10px);
-    transition: transform 0.1s ease, opacity 0.1s ease;
-  }
-
-  .runner-game-container .touch-control-btn:active {
-    transform: scale(0.92) !important;
-    opacity: 1 !important;
-  }
-
-  .runner-game-container .duck-btn {
-    left: calc(0.75rem + env(safe-area-inset-left, 0px)) !important;
-    bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px)) !important;
-    background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
-    border: 2px solid rgba(147, 197, 253, 0.6) !important;
-  }
-
-  .runner-game-container .jump-btn {
-    right: calc(0.75rem + env(safe-area-inset-right, 0px)) !important;
-    bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px)) !important;
-    background: linear-gradient(135deg, #eab308, #ca8a04) !important;
-    border: 2px solid rgba(254, 240, 138, 0.7) !important;
-    color: #000 !important;
+  .touch-control-btn {
+    min-height: 44px !important;
+    height: 44px !important;
+    padding: 0.5rem 1rem !important;
+    font-size: 0.95rem !important;
   }
 }
 
-/* ==================== 2. LOVE DEFENSE (PVZ) LANDSCAPE ==================== */
-.defense-game-container.game-landscape-active .defense-frame,
-@media (orientation: landscape) and (max-height: 550px) {
-  .defense-game-container .defense-frame {
-    height: 100% !important;
+/* ==================== 2. LOVE DEFENSE SIZING ==================== */
+/* Portrait / Default */
+#defense-canvas {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto !important;
+  aspect-ratio: 850 / 420 !important;
+  object-fit: contain !important;
+  display: block !important;
+  margin: 0 auto !important;
+}
+
+/* Landscape Mode for Love Defense (When screen is actually rotated sideways) */
+@media (orientation: landscape) and (max-height: 600px) {
+  .defense-frame {
+    padding: 0.35rem 0.6rem !important;
     max-height: 100vh !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: space-between !important;
-    padding: 0.3rem 0.5rem !important;
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    overflow: hidden !important;
   }
 
-  .defense-game-container #defense-game-screen {
-    height: 100% !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: space-between !important;
-    position: relative !important;
-  }
-
-  .defense-game-container .defense-hud-top {
+  .defense-hud-top {
     padding: 0.2rem 0.5rem !important;
     gap: 0.4rem !important;
-    background: rgba(14, 17, 28, 0.9) !important;
-    border-radius: 8px !important;
-    flex-shrink: 0 !important;
-    flex-wrap: nowrap !important;
+    margin-bottom: 0.2rem !important;
   }
 
-  .defense-game-container .defense-boss-hud {
+  .defense-boss-hud {
     order: unset !important;
     flex: 1 !important;
-    padding: 0.2rem 0.5rem !important;
+    padding: 0.15rem 0.4rem !important;
   }
 
-  .defense-game-container .boss-hud-header {
-    font-size: 0.72rem !important;
+  .boss-hud-header {
+    font-size: 0.7rem !important;
   }
 
-  .defense-game-container .boss-hp-track {
-    height: 12px !important;
+  .boss-hp-track {
+    height: 10px !important;
   }
 
-  .defense-game-container .defense-canvas-wrap {
-    flex: 1 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    margin: 0.15rem auto !important;
-    width: 100% !important;
-    max-height: calc(100vh - 120px) !important;
+  .defense-canvas-wrap {
+    max-width: 76vw !important;
+    margin: 0 auto !important;
   }
 
-  .defense-game-container #defense-canvas {
-    max-height: calc(100vh - 125px) !important;
-    height: 100% !important;
+  #defense-canvas {
+    max-height: 48vh !important;
+    max-width: 76vw !important;
     width: auto !important;
-    max-width: 96vw !important;
+    height: auto !important;
     aspect-ratio: 850 / 420 !important;
     object-fit: contain !important;
-    margin: 0 auto !important;
-    display: block !important;
     border-radius: 8px !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7) !important;
   }
 
-  .defense-game-container .defense-toolbar-wrap {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
+  .defense-toolbar-wrap {
+    margin-top: 0.25rem !important;
     gap: 0.4rem !important;
-    margin-top: 0.15rem !important;
-    flex-shrink: 0 !important;
+    justify-content: center !important;
   }
 
-  .defense-game-container .defense-seed-bank {
-    padding: 0.2rem 0.4rem !important;
-    gap: 0.35rem !important;
-    background: rgba(14, 17, 28, 0.9) !important;
-    border-radius: 10px !important;
+  .defense-seed-bank {
+    padding: 0.2rem 0.35rem !important;
+    gap: 0.3rem !important;
   }
 
-  .defense-game-container .seed-card {
-    width: 60px !important;
-    height: 64px !important;
+  .seed-card {
+    width: 52px !important;
+    height: 56px !important;
     padding: 0.15rem !important;
   }
 
-  .defense-game-container .seed-card-icon {
-    font-size: 1.35rem !important;
+  .seed-card-icon {
+    font-size: 1.25rem !important;
   }
 
-  .defense-game-container .defense-shovel-card {
-    width: 52px !important;
-    height: 64px !important;
+  .seed-card-name {
+    font-size: 0.52rem !important;
   }
 
-  .defense-game-container .defense-battle-footer {
-    display: none !important; /* Hide footer in landscape to maximize battlefield */
+  .defense-shovel-card {
+    width: 46px !important;
+    height: 56px !important;
   }
 
-  .defense-game-container .defense-alert-banner {
-    top: 4px !important;
-    padding: 0.2rem 0.6rem !important;
-    font-size: 0.68rem !important;
+  .defense-alert-banner {
+    top: 2px !important;
+    padding: 0.15rem 0.5rem !important;
+    font-size: 0.62rem !important;
   }
 }
 
-/* ==================== 3. SMART ORIENTATION HELPER OVERLAY ==================== */
+/* ==================== 3. TOAST ORIENTATION HELPER ==================== */
 .game-orientation-overlay {
   position: fixed;
-  inset: 0;
-  z-index: 100005;
-  background: rgba(6, 8, 14, 0.94);
-  backdrop-filter: blur(14px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.25rem;
-  animation: fadeInOverlay 0.3s ease-out;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  background: rgba(14, 18, 30, 0.95);
+  border: 1px solid rgba(245, 197, 24, 0.4);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.8), 0 0 15px rgba(245, 197, 24, 0.2);
+  border-radius: 14px;
+  padding: 0.75rem 1.1rem;
+  max-width: 92vw;
+  width: 360px;
+  animation: slideUpToast 0.3s ease-out;
 }
 
-@keyframes fadeInOverlay {
-  from { opacity: 0; }
-  to { opacity: 1; }
+@keyframes slideUpToast {
+  from { opacity: 0; transform: translate(-50%, 20px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
 }
 
 .orient-card {
-  background: #0f1322;
-  border: 1px solid rgba(245, 197, 24, 0.35);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), 0 0 25px rgba(245, 197, 24, 0.15);
-  border-radius: 16px;
-  padding: 1.75rem 1.25rem;
-  max-width: 380px;
-  width: 100%;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-align: left;
 }
 
 .orient-phone-anim {
-  font-size: 2.8rem;
-  margin-bottom: 0.75rem;
-  display: inline-block;
-  position: relative;
+  font-size: 1.8rem;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
 }
 
 .orient-phone-anim .rotate-arrow {
   display: inline-block;
+  font-size: 1.1rem;
+  margin-left: -6px;
   animation: rotatePhone 2s infinite ease-in-out;
-  transform-origin: center;
 }
 
 @keyframes rotatePhone {
-  0% { transform: rotate(0deg) scale(1); }
-  50% { transform: rotate(90deg) scale(1.15); }
-  100% { transform: rotate(0deg) scale(1); }
+  0% { transform: rotate(0deg); }
+  50% { transform: rotate(90deg); }
+  100% { transform: rotate(0deg); }
+}
+
+.orient-info {
+  flex: 1;
 }
 
 .orient-title {
   display: block;
-  font-family: var(--font-cinzel);
+  font-size: 0.82rem;
   color: var(--gold-lumos);
-  font-size: 1.15rem;
-  margin-bottom: 0.45rem;
+  font-weight: 700;
+  line-height: 1.25;
 }
 
 .orient-desc {
-  font-size: 0.86rem;
-  color: #cbd5e1;
-  line-height: 1.5;
-  margin-bottom: 1.25rem;
+  font-size: 0.72rem;
+  color: #94a3b8;
+  line-height: 1.3;
+  margin: 2px 0 0;
 }
 
 .orient-actions {
   display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
 }
 
 .orient-btn {
-  width: 100%;
-  padding: 0.8rem 1rem;
-  font-size: 0.95rem;
-  border-radius: 10px;
-  font-weight: 700;
+  padding: 0.4rem 0.65rem;
+  font-size: 0.72rem;
+  border-radius: 6px;
   cursor: pointer;
+  white-space: nowrap;
 }
