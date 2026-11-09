@@ -857,7 +857,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function requestGameLandscape(gameType) {
     activeLandscapeGame = gameType;
-    const targetWrapper = gameType === 'runner' ? runnerWrapper : defenseWrapper;
+    const targetWrapper = gameType === 'runner' 
+      ? runnerWrapper 
+      : (gameType === 'defense' ? defenseWrapper : cookoffWrapper);
 
     if (targetWrapper) {
       targetWrapper.classList.add('game-landscape-active');
@@ -898,6 +900,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function exitGameLandscape() {
     if (runnerWrapper) runnerWrapper.classList.remove('game-landscape-active');
     if (defenseWrapper) defenseWrapper.classList.remove('game-landscape-active');
+    if (cookoffWrapper) cookoffWrapper.classList.remove('game-landscape-active');
     document.body.classList.remove('game-landscape-lock');
 
     // Unlock screen orientation
@@ -929,7 +932,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function toggleGameLandscape(gameType) {
-    const targetWrapper = gameType === 'runner' ? runnerWrapper : defenseWrapper;
+    const targetWrapper = gameType === 'runner' 
+      ? runnerWrapper 
+      : (gameType === 'defense' ? defenseWrapper : cookoffWrapper);
     if (targetWrapper && targetWrapper.classList.contains('game-landscape-active')) {
       exitGameLandscape();
     } else {
@@ -3146,6 +3151,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const cookoffPeekBtn = document.getElementById('cookoff-peek-btn');
   const cookoffPeekCloseBtn = document.getElementById('cookoff-peek-close-btn');
   const cookoffPeekBackdrop = document.getElementById('cookoff-peek-backdrop');
+  const cookoffLandscapeBtn = document.getElementById('cookoff-landscape-btn');
   const cookoffQuitBtn = document.getElementById('cookoff-quit-btn');
   const cookoffCustomerHalo = document.getElementById('cookoff-customer-halo');
   const cookoffCustomerImg = document.getElementById('cookoff-customer-img');
@@ -3282,6 +3288,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Start Date Night Cook-off Game
   function startCookoffGame() {
+    requestGameLandscape('cookoff');
     if (cookoffRecipeScreen) cookoffRecipeScreen.style.display = 'none';
     if (cookoffResultModal) cookoffResultModal.style.display = 'none';
     if (cookoffPeekModal) cookoffPeekModal.style.display = 'none';
@@ -3681,8 +3688,13 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Quit & Retry Handlers
+  if (cookoffLandscapeBtn) {
+    cookoffLandscapeBtn.addEventListener('click', () => toggleGameLandscape('cookoff'));
+  }
+
   if (cookoffQuitBtn) {
     cookoffQuitBtn.addEventListener('click', () => {
+      exitGameLandscape();
       if (cookoffTimerInterval) clearInterval(cookoffTimerInterval);
       if (cookoffPatienceInterval) clearInterval(cookoffPatienceInterval);
       cookoffPlayScreen.style.display = 'none';
@@ -3697,12 +3709,14 @@ document.addEventListener('DOMContentLoaded', () => {
   if (cookoffRetryBtn) {
     cookoffRetryBtn.addEventListener('click', () => {
       cookoffResultModal.style.display = 'none';
+      requestGameLandscape('cookoff');
       startCookoffGame();
     });
   }
 
   if (cookoffBackToBookBtn) {
     cookoffBackToBookBtn.addEventListener('click', () => {
+      exitGameLandscape();
       cookoffResultModal.style.display = 'none';
       cookoffPlayScreen.style.display = 'none';
       cookoffRecipeScreen.style.display = 'block';
@@ -3712,7 +3726,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (cookoffStartBtn) {
-    cookoffStartBtn.addEventListener('click', startCookoffGame);
+    cookoffStartBtn.addEventListener('click', () => {
+      requestGameLandscape('cookoff');
+      startCookoffGame();
+    });
   }
 
   // Initial render of Recipe Book and High Score
