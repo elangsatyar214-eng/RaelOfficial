@@ -10160,18 +10160,748 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// Global function for claiming vouchers
-function claimVoucher(id, btnElement) {
-  if (btnElement.classList.contains('claimed')) return;
+// =========================================================================
+// 11. SECRET VAULT: DUAL-CHARACTER DATE VOUCHERS SYSTEM (RACHEL & ELANG)
+// =========================================================================
+const VAULT_STORAGE_KEY = 'rayang_vault_data_v3';
 
-  btnElement.classList.add('claimed');
-  btnElement.innerHTML = '<span>TERKLAIM! ❤️ Elang Siap Menemani</span>';
+function getVaultData() {
+  try {
+    const raw = localStorage.getItem(VAULT_STORAGE_KEY);
+    if (!raw) {
+      return { claims: {}, proposals: [], dismissedNotices: [] };
+    }
+    const data = JSON.parse(raw);
+    if (!data.claims) data.claims = {};
+    if (!data.proposals) data.proposals = [];
+    if (!data.dismissedNotices) data.dismissedNotices = [];
+    return data;
+  } catch (err) {
+    console.warn('Error reading vault storage:', err);
+    return { claims: {}, proposals: [], dismissedNotices: [] };
+  }
+}
+
+function saveVaultData(data) {
+  try {
+    localStorage.setItem(VAULT_STORAGE_KEY, JSON.stringify(data));
+  } catch (err) {
+    console.warn('Error saving vault storage:', err);
+  }
+}
+
+let activeVaultUser = sessionStorage.getItem('rayang_active_vault_user') || null;
+let pendingAuthTarget = null;
+
+// Normalizer for password digits
+function cleanPassDigits(str) {
+  return String(str || '').replace(/\D/g, '').trim();
+}
+
+function validateVaultPassword(user, input) {
+  const digits = cleanPassDigits(input);
+  const raw = String(input || '').trim().toLowerCase();
+
+  if (user === 'rachel') {
+    // Ultah Rachel: 091204 atau 09112004
+    return (
+      digits === '091204' ||
+      digits === '09112004' ||
+      digits === '91204' ||
+      digits === '9112004' ||
+      digits === '09122004' ||
+      digits === '091104' ||
+      raw === '091204' ||
+      raw === '09112004'
+    );
+  } else if (user === 'elang') {
+    // Ultah Elang: 020104 atau 02012004
+    return (
+      digits === '020104' ||
+      digits === '02012004' ||
+      digits === '20104' ||
+      digits === '2012004' ||
+      raw === '020104' ||
+      raw === '02012004'
+    );
+  }
+  return false;
+}
+
+// Buka Modal Password
+window.promptVaultAuth = function(targetUser) {
+  pendingAuthTarget = targetUser;
+  const modal = document.getElementById('voucher-auth-modal');
+  const title = document.getElementById('auth-modal-title');
+  const desc = document.getElementById('auth-modal-desc');
+  const icon = document.getElementById('auth-modal-icon');
+  const input = document.getElementById('vault-pass-input');
+  const errorBox = document.getElementById('vault-auth-error');
+
+  if (!modal) return;
+
+  if (errorBox) errorBox.style.display = 'none';
+  if (input) {
+    input.value = '';
+    input.placeholder = targetUser === 'rachel' ? '091204 / 09112004' : '020104 / 02012004';
+  }
+
+  if (targetUser === 'rachel') {
+    if (title) title.textContent = 'Buka Vault Rachel 🌸';
+    if (desc) desc.textContent = 'Masukkan tanggal lahir Rachel (091204 / 09112004) untuk membuka kunci:';
+    if (icon) icon.textContent = '👸🏻';
+  } else {
+    if (title) title.textContent = 'Buka Vault Elang ⚡';
+    if (desc) desc.textContent = 'Masukkan tanggal lahir Elang (020104 / 02012004) untuk membuka kunci:';
+    if (icon) icon.textContent = '🤴🏻';
+  }
+
+  modal.style.display = 'flex';
+  setTimeout(() => {
+    if (input) input.focus();
+  }, 100);
+};
+
+window.closeVaultAuthModal = function() {
+  const modal = document.getElementById('voucher-auth-modal');
+  if (modal) modal.style.display = 'none';
+  pendingAuthTarget = null;
+};
+
+window.submitVaultAuth = function() {
+  if (!pendingAuthTarget) return;
+
+  const input = document.getElementById('vault-pass-input');
+  const errorBox = document.getElementById('vault-auth-error');
+  const pass = input ? input.value : '';
+
+  if (validateVaultPassword(pendingAuthTarget, pass)) {
+    activeVaultUser = pendingAuthTarget;
+    sessionStorage.setItem('rayang_active_vault_user', activeVaultUser);
+
+    if (errorBox) errorBox.style.display = 'none';
+    closeVaultAuthModal();
+
+    if (window.confetti) {
+      window.confetti({ particleCount: 80, spread: 60, origin: { y: 0.7 } });
+    }
+
+    renderVaultUI();
+
+    const dash = document.getElementById('voucher-dashboard');
+    if (dash) dash.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } else {
+    if (errorBox) {
+      errorBox.textContent = pendingAuthTarget === 'rachel'
+        ? 'Sandi salah! Masukkan tanggal lahir Rachel (091204 atau 09112004) ❤️'
+        : 'Sandi salah! Masukkan tanggal lahir Elang (020104 atau 02012004) ⚡';
+      errorBox.style.display = 'block';
+    }
+    if (input) {
+      input.classList.remove('shake-anim');
+      void input.offsetWidth;
+      input.classList.add('shake-anim');
+      input.focus();
+    }
+  }
+};
+
+window.lockVaultSession = function() {
+  activeVaultUser = null;
+  sessionStorage.removeItem('rayang_active_vault_user');
+  renderVaultUI();
+  const gate = document.getElementById('voucher-char-gate');
+  if (gate) gate.scrollIntoView({ behavior: 'smooth', block: 'center' });
+};
+
+// Helper to get voucher title
+function getVoucherCardTitle(cardId) {
+  const card = document.getElementById(cardId) || document.querySelector(`[data-voucher-id="${cardId}"]`);
+  if (card) {
+    const h4 = card.querySelector('h4');
+    if (h4) return h4.textContent.trim();
+  }
+  const defaults = {
+    'rachel-1': 'All-You-Can-Eat Date',
+    'rachel-2': 'Cuddle, Music, and Movie Marathon',
+    'rachel-3': '24-Hour Pout-Free Pass',
+    'elang-1': 'Gaming & Hobby Chill Day',
+    'elang-2': 'Special Home Cook by Rachel',
+    'elang-3': 'Full Day Spoiled & Deep Hug Pass'
+  };
+  return defaults[cardId] || 'Special Date Voucher';
+}
+
+// Request to Claim a Voucher
+window.requestClaimVoucher = function(owner, voucherId) {
+  if (!activeVaultUser) {
+    window.promptVaultAuth(owner);
+    return;
+  }
+
+  if (activeVaultUser !== owner) {
+    alert(`Voucher ini milik ${owner === 'rachel' ? 'Rachel' : 'Elang'}. Silakan ganti karakter untuk mengklaimnya!`);
+    return;
+  }
+
+  const vaultData = getVaultData();
+  const currentClaim = vaultData.claims[voucherId];
+
+  if (currentClaim && currentClaim.status === 'pending') {
+    alert(`Klaim voucher ini sedang menunggu persetujuan ${owner === 'rachel' ? 'Elang' : 'Rachel'} ⏳`);
+    return;
+  }
+  if (currentClaim && currentClaim.status === 'approved') {
+    alert('Voucher ini sudah disetujui dan terklaim! Selamat menikmati kencan kalian ❤️');
+    return;
+  }
+
+  const title = getVoucherCardTitle(voucherId);
+  vaultData.claims[voucherId] = {
+    status: 'pending',
+    claimant: owner,
+    reviewer: owner === 'rachel' ? 'elang' : 'rachel',
+    title: title,
+    timestamp: Date.now()
+  };
+
+  saveVaultData(vaultData);
 
   if (window.confetti) {
-    window.confetti({
-      particleCount: 90,
-      spread: 60,
-      origin: { y: 0.8 }
+    window.confetti({ particleCount: 70, spread: 50, origin: { y: 0.8 } });
+  }
+
+  renderVaultUI();
+
+  // Show option to sync to partner via WhatsApp
+  const partnerName = owner === 'rachel' ? 'Elang' : 'Rachel';
+  const syncPayload = encodeVaultSyncPayload({
+    type: 'claim',
+    id: voucherId,
+    claimant: owner,
+    title: title,
+    timestamp: Date.now()
+  });
+
+  const siteUrl = window.location.origin + window.location.pathname;
+  const deepLink = `${siteUrl}#vault?sync=${syncPayload}`;
+  const waMsg = encodeURIComponent(
+    `Hai ${partnerName}! ❤️\n\nAku baru saja mengajukan klaim Voucher: "${title}".\nBuka website kita dan setujui yaa:\n${deepLink}`
+  );
+
+  const confirmWA = confirm(
+    `Permintaan klaim "${title}" berhasil diajukan dan menunggu persetujuan ${partnerName}! 💌\n\nApakah kamu mau mengirimkan notifikasi via WhatsApp ke ${partnerName} sekarang?`
+  );
+
+  if (confirmWA) {
+    window.open(`https://wa.me/?text=${waMsg}`, '_blank');
+  }
+};
+
+// Backward compatibility for old claimVoucher calls
+window.claimVoucher = function(id, btnElement) {
+  const active = activeVaultUser || 'rachel';
+  window.requestClaimVoucher(active, `${active}-${id}`);
+};
+
+// Submit Date Proposal Form
+window.submitDateProposal = function(e) {
+  if (e) e.preventDefault();
+
+  if (!activeVaultUser) {
+    alert('Silakan buka vault sebagai Rachel atau Elang terlebih dahulu!');
+    return;
+  }
+
+  const emojiSelect = document.getElementById('propose-emoji-select');
+  const titleInput = document.getElementById('propose-title-input');
+  const descInput = document.getElementById('propose-desc-input');
+
+  const emoji = emojiSelect ? emojiSelect.value : '🎡';
+  const title = titleInput ? titleInput.value.trim() : '';
+  const desc = descInput ? descInput.value.trim() : '';
+
+  if (!title || !desc) {
+    alert('Mohon isi judul dan deskripsi ide kencanmu ya ❤️');
+    return;
+  }
+
+  const partner = activeVaultUser === 'rachel' ? 'elang' : 'rachel';
+  const partnerName = partner === 'rachel' ? 'Rachel' : 'Elang';
+  const myName = activeVaultUser === 'rachel' ? 'Rachel' : 'Elang';
+
+  const newProp = {
+    id: 'prop-' + Date.now(),
+    from: activeVaultUser,
+    to: partner,
+    emoji: emoji,
+    title: title,
+    desc: desc,
+    status: 'pending',
+    timestamp: Date.now()
+  };
+
+  const vaultData = getVaultData();
+  vaultData.proposals.push(newProp);
+  saveVaultData(vaultData);
+
+  // Reset form
+  if (titleInput) titleInput.value = '';
+  if (descInput) descInput.value = '';
+
+  if (window.confetti) {
+    window.confetti({ particleCount: 90, spread: 60, origin: { y: 0.7 } });
+  }
+
+  // Show Success Box with WA Share
+  const successBox = document.getElementById('propose-success-box');
+  const successTitle = document.getElementById('propose-success-title');
+  const successDesc = document.getElementById('propose-success-desc');
+  const waBtn = document.getElementById('propose-wa-btn');
+
+  const syncPayload = encodeVaultSyncPayload({
+    type: 'proposal',
+    proposal: newProp
+  });
+
+  const siteUrl = window.location.origin + window.location.pathname;
+  const deepLink = `${siteUrl}#vault?sync=${syncPayload}`;
+  const waMsg = encodeURIComponent(
+    `Hai ${partnerName}! 💖\n\n${myName} baru saja mengajukan ide kencan baru: "${emoji} ${title}"\nDeskripsi: "${desc}"\n\nYuk buka website kita dan pilih setujui atau tolak di sini:\n${deepLink}`
+  );
+
+  if (successBox) {
+    if (successTitle) successTitle.textContent = `Ide Kencan Berhasil Dikirim ke ${partnerName}! 🎉`;
+    if (successDesc) {
+      successDesc.textContent = `Pengajuan kencan "${title}" sudah dicatat. Begitu ${partnerName} membuka akunnya, notifikasi persetujuan akan langsung muncul.`;
+    }
+    if (waBtn) {
+      waBtn.href = `https://wa.me/?text=${waMsg}`;
+    }
+    successBox.style.display = 'block';
+  }
+
+  renderVaultUI();
+};
+
+// Respond to Incoming Request (Approve / Reject)
+window.respondToVaultRequest = function(type, id, action) {
+  const vaultData = getVaultData();
+  const isApprove = action === 'approve';
+  let targetItem = null;
+  let partner = activeVaultUser === 'rachel' ? 'elang' : 'rachel';
+
+  if (type === 'claim') {
+    if (vaultData.claims[id]) {
+      vaultData.claims[id].status = isApprove ? 'approved' : 'rejected';
+      vaultData.claims[id].decidedAt = Date.now();
+      targetItem = vaultData.claims[id];
+      partner = targetItem.claimant;
+    }
+  } else if (type === 'proposal') {
+    const prop = vaultData.proposals.find(p => p.id === id);
+    if (prop) {
+      prop.status = isApprove ? 'approved' : 'rejected';
+      prop.decidedAt = Date.now();
+      targetItem = prop;
+      partner = prop.from;
+    }
+  }
+
+  saveVaultData(vaultData);
+
+  if (isApprove && window.confetti) {
+    window.confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+  }
+
+  renderVaultUI();
+
+  // Create WhatsApp notification reply
+  if (targetItem) {
+    const partnerName = partner === 'rachel' ? 'Rachel' : 'Elang';
+    const myName = activeVaultUser === 'rachel' ? 'Rachel' : 'Elang';
+    const itemTitle = targetItem.title || 'Kencan Spesial';
+
+    const syncPayload = encodeVaultSyncPayload({
+      type: 'decision',
+      requestType: type,
+      id: id,
+      action: action,
+      decidedBy: activeVaultUser,
+      timestamp: Date.now()
+    });
+
+    const siteUrl = window.location.origin + window.location.pathname;
+    const deepLink = `${siteUrl}#vault?sync=${syncPayload}`;
+    const statusText = isApprove ? 'MENYETUJUI' : 'MINTA GANTI JADWAL / BELUM BISA';
+    const waMsg = encodeURIComponent(
+      `Hai ${partnerName}! 💌\n\n${myName} telah ${statusText} pengajuan kencanmu: "${itemTitle}".\n\nCek update terbarunya di website kita ya:\n${deepLink}`
+    );
+
+    const askWA = confirm(
+      `Status berhasil diubah menjadi "${isApprove ? 'Disetujui 💖' : 'Ditolak 🥺'}".\n\nKirimkan konfirmasi ini via WhatsApp ke ${partnerName}?`
+    );
+    if (askWA) {
+      window.open(`https://wa.me/?text=${waMsg}`, '_blank');
+    }
+  }
+};
+
+window.dismissVaultNotice = function(noticeKey) {
+  const vaultData = getVaultData();
+  if (!vaultData.dismissedNotices.includes(noticeKey)) {
+    vaultData.dismissedNotices.push(noticeKey);
+    saveVaultData(vaultData);
+  }
+  renderVaultUI();
+};
+
+// URL Hash & Deep Sync Encoding
+function encodeVaultSyncPayload(obj) {
+  try {
+    return encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(obj)))));
+  } catch (e) {
+    return encodeURIComponent(JSON.stringify(obj));
+  }
+}
+
+function decodeVaultSyncPayload(str) {
+  try {
+    return JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(str)))));
+  } catch (e) {
+    try {
+      return JSON.parse(decodeURIComponent(str));
+    } catch (err) {
+      return null;
+    }
+  }
+}
+
+function checkVaultDeepSync() {
+  const hash = window.location.hash || '';
+  const search = window.location.search || '';
+  let syncParam = '';
+
+  const matchSearch = search.match(/[?&]sync=([^&#]+)/);
+  if (matchSearch) syncParam = matchSearch[1];
+
+  const matchHash = hash.match(/[?&]sync=([^&#]+)/);
+  if (matchHash) syncParam = matchHash[1];
+
+  if (!syncParam) return;
+
+  const payload = decodeVaultSyncPayload(syncParam);
+  if (!payload) return;
+
+  const vaultData = getVaultData();
+
+  if (payload.type === 'proposal' && payload.proposal) {
+    const existing = vaultData.proposals.find(p => p.id === payload.proposal.id);
+    if (!existing) {
+      vaultData.proposals.push(payload.proposal);
+      saveVaultData(vaultData);
+    }
+  } else if (payload.type === 'claim') {
+    vaultData.claims[payload.id] = {
+      status: 'pending',
+      claimant: payload.claimant,
+      reviewer: payload.claimant === 'rachel' ? 'elang' : 'rachel',
+      title: payload.title,
+      timestamp: payload.timestamp || Date.now()
+    };
+    saveVaultData(vaultData);
+  } else if (payload.type === 'decision') {
+    if (payload.requestType === 'claim' && vaultData.claims[payload.id]) {
+      vaultData.claims[payload.id].status = payload.action === 'approve' ? 'approved' : 'rejected';
+      vaultData.claims[payload.id].decidedAt = payload.timestamp || Date.now();
+      saveVaultData(vaultData);
+    } else if (payload.requestType === 'proposal') {
+      const prop = vaultData.proposals.find(p => p.id === payload.id);
+      if (prop) {
+        prop.status = payload.action === 'approve' ? 'approved' : 'rejected';
+        prop.decidedAt = payload.timestamp || Date.now();
+        saveVaultData(vaultData);
+      }
+    }
+  }
+
+  // Open Vault Section cleanly
+  if (typeof switchSection === 'function') {
+    switchSection('vault');
+  }
+
+  // Clear query without page reload
+  try {
+    const cleanUrl = window.location.origin + window.location.pathname + '#vault';
+    window.history.replaceState({}, document.title, cleanUrl);
+  } catch (e) {}
+
+  renderVaultUI();
+}
+
+window.addEventListener('hashchange', checkVaultDeepSync);
+
+// Main UI Rendering Function
+function renderVaultUI() {
+  const charGate = document.getElementById('voucher-char-gate');
+  const dashboard = document.getElementById('voucher-dashboard');
+  if (!charGate || !dashboard) return;
+
+  if (!activeVaultUser) {
+    charGate.style.display = 'block';
+    dashboard.style.display = 'none';
+    return;
+  }
+
+  charGate.style.display = 'none';
+  dashboard.style.display = 'block';
+
+  // 1. Update User Bar
+  const userAvatar = document.getElementById('active-user-avatar');
+  const userRole = document.getElementById('active-user-role');
+  const userTitle = document.getElementById('active-user-title');
+
+  if (activeVaultUser === 'rachel') {
+    if (userAvatar) {
+      userAvatar.src = 'assets/images/head-rachel.png';
+      userAvatar.onerror = function() {
+        if (!this.dataset.triedJpg) {
+          this.dataset.triedJpg = '1';
+          this.src = 'assets/images/head-rachel.jpg';
+        } else {
+          this.src = 'assets/images/head-rachel.svg';
+        }
+      };
+    }
+    if (userRole) userRole.textContent = 'Princess Vault 👸🏻';
+    if (userTitle) userTitle.textContent = 'Vault Milik Rachel 💖';
+  } else {
+    if (userAvatar) {
+      userAvatar.src = 'assets/images/head-elang.png';
+      userAvatar.onerror = function() {
+        if (!this.dataset.triedJpg) {
+          this.dataset.triedJpg = '1';
+          this.src = 'assets/images/head-elang.jpg';
+        } else {
+          this.src = 'assets/images/head-elang.svg';
+        }
+      };
+    }
+    if (userRole) userRole.textContent = 'Prince Vault 🤴🏻';
+    if (userTitle) userTitle.textContent = 'Vault Milik Elang 🖤';
+  }
+
+  // 2. Toggle Voucher Collections
+  const rachelContainer = document.getElementById('rachel-vouchers-container');
+  const elangContainer = document.getElementById('elang-vouchers-container');
+
+  if (rachelContainer) rachelContainer.style.display = activeVaultUser === 'rachel' ? 'block' : 'none';
+  if (elangContainer) elangContainer.style.display = activeVaultUser === 'elang' ? 'block' : 'none';
+
+  // 3. Propose Form Placeholders & Texts
+  const partnerName = activeVaultUser === 'rachel' ? 'Elang' : 'Rachel';
+  const proposeTitle = document.getElementById('propose-form-title');
+  const proposeDesc = document.getElementById('propose-form-desc');
+  const proposeSubmitText = document.getElementById('propose-submit-text');
+
+  if (proposeTitle) proposeTitle.textContent = `Ajukan Voucher Date Tambahan ke ${partnerName} 💌`;
+  if (proposeDesc) proposeDesc.textContent = `Punya ide kencan impian baru? Tulis di sini dan kirimkan ke ${partnerName} untuk disetujui!`;
+  if (proposeSubmitText) proposeSubmitText.textContent = `Kirim Pengajuan Kencan ke ${partnerName} 🚀`;
+
+  // 4. Render Inbox (Pending Requests from Partner & Notifications)
+  const inbox = document.getElementById('vault-inbox-container');
+  const vaultData = getVaultData();
+  const partner = activeVaultUser === 'rachel' ? 'elang' : 'rachel';
+
+  if (inbox) {
+    let inboxHtml = '';
+
+    // A. Permintaan Masuk (Incoming pending from partner to active user)
+    const pendingClaimsFromPartner = Object.entries(vaultData.claims)
+      .filter(([id, c]) => c && c.claimant === partner && c.status === 'pending');
+
+    const pendingProposalsFromPartner = (vaultData.proposals || [])
+      .filter(p => p.from === partner && p.status === 'pending');
+
+    if (pendingClaimsFromPartner.length > 0 || pendingProposalsFromPartner.length > 0) {
+      pendingClaimsFromPartner.forEach(([vId, c]) => {
+        inboxHtml += `
+          <div class="inbox-card request-card">
+            <div class="inbox-header">
+              <span class="inbox-tag tag-request"><i data-lucide="ticket"></i> Permintaan Klaim Voucher</span>
+              <span class="inbox-time">${c.timestamp ? new Date(c.timestamp).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }) : 'Hari Ini'}</span>
+            </div>
+            <div class="inbox-title">🎟️ ${c.title || 'Voucher Kencan'}</div>
+            <div class="inbox-desc">${partnerName} ingin mengklaim voucher ini untuk kencan bersama kamu. Apakah kamu menyetujuinya?</div>
+            <div class="inbox-actions">
+              <button type="button" class="btn-approve" onclick="respondToVaultRequest('claim', '${vId}', 'approve')">
+                <i data-lucide="check"></i> Setujui 💖
+              </button>
+              <button type="button" class="btn-reject" onclick="respondToVaultRequest('claim', '${vId}', 'reject')">
+                <i data-lucide="x"></i> Minta Jadwal Lain 🥺
+              </button>
+            </div>
+          </div>
+        `;
+      });
+
+      pendingProposalsFromPartner.forEach(p => {
+        inboxHtml += `
+          <div class="inbox-card request-card">
+            <div class="inbox-header">
+              <span class="inbox-tag tag-request"><i data-lucide="sparkles"></i> Pengajuan Kencan Baru</span>
+              <span class="inbox-time">${p.timestamp ? new Date(p.timestamp).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }) : 'Hari Ini'}</span>
+            </div>
+            <div class="inbox-title">${p.emoji || '🎡'} ${p.title}</div>
+            <div class="inbox-desc"><strong>Harapan ${partnerName}:</strong> "${p.desc}"</div>
+            <div class="inbox-actions">
+              <button type="button" class="btn-approve" onclick="respondToVaultRequest('proposal', '${p.id}', 'approve')">
+                <i data-lucide="check"></i> Setujui Kencan Ini 💖
+              </button>
+              <button type="button" class="btn-reject" onclick="respondToVaultRequest('proposal', '${p.id}', 'reject')">
+                <i data-lucide="x"></i> Tolak / Jadwal Lain 🥺
+              </button>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    // B. Notifikasi Balasan (Status of my requests decided by partner)
+    const myDecidedClaims = Object.entries(vaultData.claims)
+      .filter(([id, c]) => c && c.claimant === activeVaultUser && (c.status === 'approved' || c.status === 'rejected'));
+
+    const myDecidedProposals = (vaultData.proposals || [])
+      .filter(p => p.from === activeVaultUser && (p.status === 'approved' || p.status === 'rejected'));
+
+    myDecidedClaims.forEach(([vId, c]) => {
+      const noticeKey = `claim_${vId}_${c.status}_${c.decidedAt || 0}`;
+      if (!vaultData.dismissedNotices.includes(noticeKey)) {
+        const isApp = c.status === 'approved';
+        inboxHtml += `
+          <div class="inbox-card status-notice">
+            <div class="inbox-header">
+              <span class="inbox-tag ${isApp ? 'tag-approved' : 'tag-rejected'}">
+                ${isApp ? '✓ DISETUJUI' : '✕ BELUM DISETUJUI'}
+              </span>
+              <button type="button" class="btn-dismiss" onclick="dismissVaultNotice('${noticeKey}')">Tandai Dibaca ✓</button>
+            </div>
+            <div class="inbox-title">${isApp ? '🎉 Hore!' : '🥺 Update:'} ${partnerName} telah ${isApp ? 'menyetujui' : 'menolak'} klaim "${c.title}"</div>
+            <div class="inbox-desc">${isApp ? `${partnerName} sudah siap menemani kencan spesial ini!` : `Mungkin ${partnerName} sedang sibuk atau ingin ganti jadwal. Jangan berkecil hati ya!`}</div>
+          </div>
+        `;
+      }
+    });
+
+    myDecidedProposals.forEach(p => {
+      const noticeKey = `prop_${p.id}_${p.status}_${p.decidedAt || 0}`;
+      if (!vaultData.dismissedNotices.includes(noticeKey)) {
+        const isApp = p.status === 'approved';
+        inboxHtml += `
+          <div class="inbox-card status-notice">
+            <div class="inbox-header">
+              <span class="inbox-tag ${isApp ? 'tag-approved' : 'tag-rejected'}">
+                ${isApp ? '✓ DISETUJUI' : '✕ BELUM DISETUJUI'}
+              </span>
+              <button type="button" class="btn-dismiss" onclick="dismissVaultNotice('${noticeKey}')">Tandai Dibaca ✓</button>
+            </div>
+            <div class="inbox-title">${isApp ? '🎉 Yeay!' : '🥺 Update:'} ${partnerName} telah ${isApp ? 'menyetujui' : 'menolak'} ide "${p.emoji} ${p.title}"</div>
+            <div class="inbox-desc">${isApp ? `Ide kencan impianmu berhasil dimasukkan ke daftar kencan kalian!` : `Yuk diskusikan lagi ide kencan lainnya bersama ${partnerName}!`}</div>
+          </div>
+        `;
+      }
+    });
+
+    inbox.innerHTML = inboxHtml;
+  }
+
+  // 5. Update Existing Voucher Card States (Buttons)
+  ['rachel', 'elang'].forEach(userPrefix => {
+    [1, 2, 3].forEach(num => {
+      const vId = `${userPrefix}-${num}`;
+      const btn = document.getElementById(`claim-btn-${vId}`);
+      if (!btn) return;
+
+      const claim = vaultData.claims[vId];
+      btn.classList.remove('claimed', 'pending', 'rejected');
+
+      // Clear any existing ping links
+      const parent = btn.parentElement;
+      const existingPing = parent ? parent.querySelector('.wa-ping-link') : null;
+      if (existingPing) existingPing.remove();
+
+      if (!claim || !claim.status) {
+        btn.innerHTML = `<span>Claim This Voucher ${userPrefix === 'rachel' ? '💖' : '⚡'}</span>`;
+        btn.onclick = () => window.requestClaimVoucher(userPrefix, vId);
+      } else if (claim.status === 'pending') {
+        btn.classList.add('pending');
+        btn.innerHTML = `<span>Menunggu Persetujuan ${userPrefix === 'rachel' ? 'Elang' : 'Rachel'} ⏳</span>`;
+        btn.onclick = () => alert(`Permintaan sedang menunggu konfirmasi dari ${userPrefix === 'rachel' ? 'Elang' : 'Rachel'} ❤️`);
+
+        // Add quick WA ping link
+        if (parent && activeVaultUser === userPrefix) {
+          const pingA = document.createElement('a');
+          pingA.className = 'wa-ping-link';
+          pingA.target = '_blank';
+          pingA.rel = 'noopener noreferrer';
+          const deepLink = `${window.location.origin}${window.location.pathname}#vault?sync=${encodeVaultSyncPayload({ type: 'claim', id: vId, claimant: userPrefix, title: getVoucherCardTitle(vId) })}`;
+          pingA.href = `https://wa.me/?text=${encodeURIComponent(`Sayang, jangan lupa setujui klaim voucherkku yaa: "${getVoucherCardTitle(vId)}" ❤️\n${deepLink}`)}`;
+          pingA.innerHTML = '<i data-lucide="message-circle" style="width:14px;height:14px;"></i> Ingatkan via WhatsApp';
+          parent.appendChild(pingA);
+        }
+      } else if (claim.status === 'approved') {
+        btn.classList.add('claimed');
+        btn.innerHTML = `<span>TERKLAIM & DISETUJUI! ❤️ (${userPrefix === 'rachel' ? 'Elang' : 'Rachel'} Siap Menemani)</span>`;
+        btn.onclick = () => alert('Voucher resmi telah disetujui dan aktif seumur hidup! 🎉');
+      } else if (claim.status === 'rejected') {
+        btn.classList.add('rejected');
+        btn.innerHTML = `<span>Ditolak ${userPrefix === 'rachel' ? 'Elang' : 'Rachel'} 🥺 (Klik untuk ajukan lagi)</span>`;
+        btn.onclick = () => window.requestClaimVoucher(userPrefix, vId);
+      }
+    });
+  });
+
+  // 6. Append Custom Approved Proposals into the Grid
+  const currentGridId = activeVaultUser === 'rachel' ? 'rachel-voucher-grid' : 'elang-voucher-grid';
+  const grid = document.getElementById(currentGridId);
+  if (grid) {
+    // Remove old dynamic cards
+    grid.querySelectorAll('.dynamic-voucher-card').forEach(c => c.remove());
+
+    const approvedCustomProps = (vaultData.proposals || []).filter(
+      p => p.from === activeVaultUser && p.status === 'approved'
+    );
+
+    approvedCustomProps.forEach(prop => {
+      const dynCard = document.createElement('div');
+      dynCard.className = 'voucher-card dynamic-voucher-card';
+      dynCard.dataset.voucherId = prop.id;
+      dynCard.innerHTML = `
+        <div class="voucher-tag" style="background:rgba(16,185,129,0.2);color:#86efac;border-color:rgba(16,185,129,0.4);">APPROVED PROPOSAL</div>
+        <div class="voucher-icon">${prop.emoji || '✨'}</div>
+        <h4>${prop.title}</h4>
+        <p>${prop.desc}</p>
+        <button class="claim-btn claimed">
+          <span>DISETUJUI OLEH ${partnerName.toUpperCase()}! ❤️</span>
+        </button>
+      `;
+      grid.appendChild(dynCard);
     });
   }
+
+  // Refresh Lucide Icons if available
+  if (window.lucide && typeof window.lucide.createIcons === 'function') {
+    window.lucide.createIcons();
+  }
+}
+
+// Initial auto-boot on script load
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    checkVaultDeepSync();
+    renderVaultUI();
+  });
+} else {
+  checkVaultDeepSync();
+  renderVaultUI();
 }

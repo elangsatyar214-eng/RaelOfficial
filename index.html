@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -2484,49 +2484,237 @@
         </div>
 
         <!-- SPECIAL ANNIVERSARY VOUCHERS -->
-        <div class="vouchers-section">
+        <div class="vouchers-section" id="vouchers-vault-section">
           <h3 class="vouchers-title cinzel-title">Special Anniversary Date Vouchers</h3>
-          <p class="vouchers-desc">These coupons are officially valid for a lifetime and can be claimed whenever your
-            heart desires!</p>
+          <p class="vouchers-desc">Kupon resmi seumur hidup yang bisa diklaim kapanpun oleh Rachel & Elang! 💖</p>
 
-          <div class="voucher-grid">
-            <!-- Voucher 1 -->
-            <div class="voucher-card" id="voucher-1">
-              <div class="voucher-tag">LIFETIME VALIDITY</div>
-              <div class="voucher-icon">🍝</div>
-              <h4>All-You-Can-Eat Date</h4>
-              <p>Pick which restaurant in the world you crave, Elang's treat and Elang will keep you company until
-                you're
-                completely satisfied!....... but, it will wait hehe, until I get enough money, because today I'm poor
-              </p>
-              <button class="claim-btn" onclick="claimVoucher(1, this)">
-                <span>Claim This Voucher 💖</span>
+          <!-- 1. CHARACTER SELECT GATE -->
+          <div id="voucher-char-gate" class="voucher-char-gate">
+            <h4 class="vault-gate-prompt"><i data-lucide="sparkles"></i> Pilih Siapa yang Ingin Membuka Vault:</h4>
+            <div class="voucher-char-cards">
+              <!-- Rachel Selector Card -->
+              <div class="voucher-char-card" id="select-char-rachel" onclick="promptVaultAuth('rachel')">
+                <div class="voucher-char-glow halo-rachel"></div>
+                <div class="voucher-avatar-wrapper">
+                  <img src="assets/images/head-rachel.png" alt="Rachel" class="voucher-char-avatar"
+                    onerror="if(!this.dataset.triedJpg){this.dataset.triedJpg='1'; this.src='assets/images/head-rachel.jpg';} else {this.src='assets/images/head-rachel.svg';}">
+                  <span class="char-role-badge rachel-badge">Princess 👸🏻</span>
+                </div>
+                <h4 class="voucher-char-name">Rachel</h4>
+                <p class="voucher-char-hint">Klaim voucher kencan khusus Rachel & ajukan kencan baru ke Elang</p>
+                <button type="button" class="glow-button sec-btn voucher-open-btn">
+                  <i data-lucide="key-round"></i>
+                  <span>Buka Vault Rachel</span>
+                </button>
+              </div>
+
+              <!-- Elang Selector Card -->
+              <div class="voucher-char-card" id="select-char-elang" onclick="promptVaultAuth('elang')">
+                <div class="voucher-char-glow halo-elang"></div>
+                <div class="voucher-avatar-wrapper">
+                  <img src="assets/images/head-elang.png" alt="Elang" class="voucher-char-avatar"
+                    onerror="if(!this.dataset.triedJpg){this.dataset.triedJpg='1'; this.src='assets/images/head-elang.jpg';} else {this.src='assets/images/head-elang.svg';}">
+                  <span class="char-role-badge elang-badge">Prince 🤴🏻</span>
+                </div>
+                <h4 class="voucher-char-name">Elang</h4>
+                <p class="voucher-char-hint">Klaim voucher kencan khusus Elang & ajukan kencan baru ke Rachel</p>
+                <button type="button" class="glow-button sec-btn voucher-open-btn">
+                  <i data-lucide="key-round"></i>
+                  <span>Buka Vault Elang</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. AUTH MODAL (PASSWORD PROMPT) -->
+          <div id="voucher-auth-modal" class="voucher-auth-modal" style="display: none;">
+            <div class="voucher-auth-box">
+              <button type="button" class="auth-modal-close" onclick="closeVaultAuthModal()">&times;</button>
+              <div class="auth-modal-icon" id="auth-modal-icon">🔐</div>
+              <h3 id="auth-modal-title" class="cinzel-title">Buka Vault Rachel</h3>
+              <p id="auth-modal-desc" class="auth-modal-desc">Masukkan tanggal lahir Rachel (DDMMYY atau DDMMYYYY) untuk membuka kunci:</p>
+              
+              <div class="auth-input-group">
+                <input type="text" id="vault-pass-input" class="vault-pass-input" placeholder="Contoh: 091204 / 09112004" autocomplete="off" maxlength="12">
+                <button type="button" class="glow-button primary-btn" id="vault-auth-submit-btn" onclick="submitVaultAuth()">
+                  <span>Buka Kunci ✨</span>
+                </button>
+              </div>
+              <div id="vault-auth-error" class="vault-auth-error" style="display: none;">Sandi salah! Coba periksa lagi tanggal lahirnya ya ❤️</div>
+            </div>
+          </div>
+
+          <!-- 3. UNLOCKED DASHBOARD (CONTAINER RACHEL & ELANG) -->
+          <div id="voucher-dashboard" class="voucher-dashboard" style="display: none;">
+            <!-- Active User Bar -->
+            <div class="vault-user-bar">
+              <div class="active-user-info">
+                <img id="active-user-avatar" src="assets/images/head-rachel.png" alt="User" class="active-avatar-mini"
+                  onerror="if(!this.dataset.triedJpg){this.dataset.triedJpg='1'; this.src='assets/images/head-rachel.jpg';} else {this.src='assets/images/head-rachel.svg';}">
+                <div class="active-user-text">
+                  <span class="active-user-badge" id="active-user-role">Princess Vault</span>
+                  <h4 id="active-user-title">Vault Milik Rachel 💖</h4>
+                </div>
+              </div>
+              <button type="button" class="glow-button sec-btn switch-user-btn" onclick="lockVaultSession()">
+                <i data-lucide="log-out"></i>
+                <span>Ganti Karakter / Kunci 🔒</span>
               </button>
             </div>
 
-            <!-- Voucher 2 -->
-            <div class="voucher-card" id="voucher-2">
-              <div class="voucher-tag">LIFETIME VALIDITY</div>
-              <div class="voucher-icon">🪄🎬</div>
-              <h4>Cuddle, Music, and Movie Marathon</h4>
-              <p>A cozy movie marathon of any films while listening to good music, complete with your favorite
-                snacks & warm cuddles</p>
-              <button class="claim-btn" onclick="claimVoucher(2, this)">
-                <span>Claim This Voucher 💖</span>
-              </button>
+            <!-- INBOX & NOTIFICATION SECTION (Persetujuan & Notifikasi Balasan) -->
+            <div id="vault-inbox-container" class="vault-inbox-container">
+              <!-- Will be rendered dynamically: incoming requests to approve/reject, and notifications from partner -->
             </div>
 
-            <!-- Voucher 3 -->
-            <div class="voucher-card" id="voucher-3">
-              <div class="voucher-tag">LIFETIME VALIDITY</div>
-              <div class="voucher-icon">🥺💆🏻‍♀️</div>
-              <h4>24-Hour Pout-Free Pass</h4>
-              <p>A magical pass! Whenever Rachel feels tired or stressed from biology studies, Elang is on duty to
-                gently stroke your hair, listen to your stories, and obey your every wish all day long.</p>
-              <button class="claim-btn" onclick="claimVoucher(3, this)">
-                <span>Claim This Voucher 💖</span>
-              </button>
+            <!-- VOUCHERS LIST RACHEL -->
+            <div id="rachel-vouchers-container" class="character-vouchers-container" style="display: none;">
+              <div class="vouchers-header-banner">
+                <h4><i data-lucide="ticket"></i> Koleksi Voucher Kencan Rachel</h4>
+                <p>Klaim voucher ini kapanpun kamu mau. Begitu kamu klik klaim, Elang akan menerima permintaan persetujuan!</p>
+              </div>
+
+              <div class="voucher-grid" id="rachel-voucher-grid">
+                <!-- Voucher Rachel 1 -->
+                <div class="voucher-card" id="rachel-voucher-1" data-voucher-id="rachel-1">
+                  <div class="voucher-tag">LIFETIME VALIDITY</div>
+                  <div class="voucher-icon">🍝</div>
+                  <h4>All-You-Can-Eat Date</h4>
+                  <p>Pick which restaurant in the world you crave, Elang's treat and Elang will keep you company until
+                    you're completely satisfied!....... but, it will wait hehe, until I get enough money, because today I'm poor</p>
+                  <button class="claim-btn" id="claim-btn-rachel-1" onclick="requestClaimVoucher('rachel', 'rachel-1')">
+                    <span>Claim This Voucher 💖</span>
+                  </button>
+                </div>
+
+                <!-- Voucher Rachel 2 -->
+                <div class="voucher-card" id="rachel-voucher-2" data-voucher-id="rachel-2">
+                  <div class="voucher-tag">LIFETIME VALIDITY</div>
+                  <div class="voucher-icon">🪄🎬</div>
+                  <h4>Cuddle, Music, and Movie Marathon</h4>
+                  <p>A cozy movie marathon of any films while listening to good music, complete with your favorite
+                    snacks & warm cuddles</p>
+                  <button class="claim-btn" id="claim-btn-rachel-2" onclick="requestClaimVoucher('rachel', 'rachel-2')">
+                    <span>Claim This Voucher 💖</span>
+                  </button>
+                </div>
+
+                <!-- Voucher Rachel 3 -->
+                <div class="voucher-card" id="rachel-voucher-3" data-voucher-id="rachel-3">
+                  <div class="voucher-tag">LIFETIME VALIDITY</div>
+                  <div class="voucher-icon">🥺💆🏻‍♀️</div>
+                  <h4>24-Hour Pout-Free Pass</h4>
+                  <p>A magical pass! Whenever Rachel feels tired or stressed from biology studies, Elang is on duty to
+                    gently stroke your hair, listen to your stories, and obey your every wish all day long.</p>
+                  <button class="claim-btn" id="claim-btn-rachel-3" onclick="requestClaimVoucher('rachel', 'rachel-3')">
+                    <span>Claim This Voucher 💖</span>
+                  </button>
+                </div>
+              </div>
             </div>
+
+            <!-- VOUCHERS LIST ELANG -->
+            <div id="elang-vouchers-container" class="character-vouchers-container" style="display: none;">
+              <div class="vouchers-header-banner">
+                <h4><i data-lucide="ticket"></i> Koleksi Voucher Kencan Elang</h4>
+                <p>Klaim voucher ini kapanpun Elang mau. Begitu Elang klik klaim, Rachel akan menerima permintaan persetujuan!</p>
+              </div>
+
+              <!-- ============================================================
+                   BAGIAN VOUCHER ELANG (BISA KAMU UBAH DI SINI)
+                   - Kamu bisa ubah icon emoji (voucher-icon)
+                   - Ubah judul kencan (h4)
+                   - Ubah deskripsi kencan (p)
+                   ============================================================ -->
+              <div class="voucher-grid" id="elang-voucher-grid">
+                <!-- Voucher Elang 1 -->
+                <div class="voucher-card" id="elang-voucher-1" data-voucher-id="elang-1">
+                  <div class="voucher-tag">LIFETIME VALIDITY</div>
+                  <div class="voucher-icon">🎮🍕</div>
+                  <h4>Gaming & Hobby Chill Day</h4>
+                  <p>Bebas main game atau ngerjain project fisika/coding seharian penuh tanpa diomelin, ditemani camilan favorit dan kopi buatan Rachel!</p>
+                  <button class="claim-btn" id="claim-btn-elang-1" onclick="requestClaimVoucher('elang', 'elang-1')">
+                    <span>Claim This Voucher ⚡</span>
+                  </button>
+                </div>
+
+                <!-- Voucher Elang 2 -->
+                <div class="voucher-card" id="elang-voucher-2" data-voucher-id="elang-2">
+                  <div class="voucher-tag">LIFETIME VALIDITY</div>
+                  <div class="voucher-icon">🍲👩🏻‍🍳</div>
+                  <h4>Special Home Cook by Rachel</h4>
+                  <p>Rachel memasakkan satu hidangan spesial favorit Elang dengan penuh cinta dan disuapin sampai kenyang!</p>
+                  <button class="claim-btn" id="claim-btn-elang-2" onclick="requestClaimVoucher('elang', 'elang-2')">
+                    <span>Claim This Voucher ⚡</span>
+                  </button>
+                </div>
+
+                <!-- Voucher Elang 3 -->
+                <div class="voucher-card" id="elang-voucher-3" data-voucher-id="elang-3">
+                  <div class="voucher-tag">LIFETIME VALIDITY</div>
+                  <div class="voucher-icon">💆🏻‍♂️💤</div>
+                  <h4>Full Day Spoiled & Deep Hug Pass</h4>
+                  <p>Pass manja seharian! Rachel siap dengerin curhatan Elang, dielus rambutnya, dan dipeluk erat tanpa batas waktu.</p>
+                  <button class="claim-btn" id="claim-btn-elang-3" onclick="requestClaimVoucher('elang', 'elang-3')">
+                    <span>Claim This Voucher ⚡</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- PROPOSE NEW DATE VOUCHER SECTION (AJUKAN KENCAN TAMBAHAN) -->
+            <div class="propose-voucher-section">
+              <div class="propose-card">
+                <div class="propose-badge"><i data-lucide="plus-circle"></i> REQUEST A DATE</div>
+                <h4 id="propose-form-title" class="cinzel-title">Ajukan Voucher Date Tambahan</h4>
+                <p id="propose-form-desc">Punya ide kencan impian baru? Tulis di sini dan kirimkan ke pasanganmu untuk disetujui!</p>
+
+                <form id="vault-propose-form" onsubmit="submitDateProposal(event)">
+                  <div class="propose-input-row">
+                    <div class="propose-field emoji-field">
+                      <label>Pilih Emoji:</label>
+                      <select id="propose-emoji-select" class="vault-select">
+                        <option value="🎡">🎡 Pasar Malam / Dufan</option>
+                        <option value="🏕️">🏕️ Camping / Piknik</option>
+                        <option value="🎨">🎨 Museum & Photobox</option>
+                        <option value="🍣">🍣 Kulineran / AYCE</option>
+                        <option value="☕">☕ Cafe & Deep Talk</option>
+                        <option value="🏖️">🏖️ Liburan ke Pantai</option>
+                        <option value="🎬">🎬 Nonton Bioskop</option>
+                        <option value="💆🏻">💆🏻 Spa / Me-Time Berdua</option>
+                        <option value="🪄">🪄 Kejutan Random</option>
+                      </select>
+                    </div>
+                    <div class="propose-field title-field">
+                      <label>Judul Ide Kencan:</label>
+                      <input type="text" id="propose-title-input" class="vault-input" placeholder="Contoh: Street Food Hunt & Photobox" required>
+                    </div>
+                  </div>
+
+                  <div class="propose-field">
+                    <label>Deskripsi / Harapan Kencan:</label>
+                    <textarea id="propose-desc-input" class="vault-textarea" rows="3" placeholder="Ceritain mau ngapain aja, kapan kira-kira, dan pesan manismu..." required></textarea>
+                  </div>
+
+                  <button type="submit" class="glow-button primary-btn propose-submit-btn">
+                    <i data-lucide="send"></i>
+                    <span id="propose-submit-text">Kirim Pengajuan Kencan ke Pasangan 🚀</span>
+                  </button>
+                </form>
+
+                <!-- Feedback after proposal -->
+                <div id="propose-success-box" class="propose-success-box" style="display: none;">
+                  <div class="success-icon">🎉</div>
+                  <h4 id="propose-success-title">Berhasil Dikirimkan!</h4>
+                  <p id="propose-success-desc">Ide kencanmu sudah tersimpan dan akan muncul di akun pasanganmu untuk disetujui.</p>
+                  <a id="propose-wa-btn" href="#" target="_blank" rel="noopener noreferrer" class="glow-button sec-btn wa-share-btn">
+                    <i data-lucide="message-circle"></i>
+                    <span>Kirim Notifikasi via WhatsApp 📲</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
 
