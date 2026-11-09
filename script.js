@@ -855,28 +855,28 @@ document.addEventListener('DOMContentLoaded', () => {
     return window.innerWidth <= 900 || ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
   }
 
-  const gameOrientOverlay = document.getElementById('game-orientation-overlay');
-  const orientLockBtn = document.getElementById('orient-lock-btn');
-  const orientCloseBtn = document.getElementById('orient-close-btn');
-
-  function checkOrientationPrompt(gameType) {
-    if (!gameOrientOverlay) return;
-    const isPortrait = window.innerHeight > window.innerWidth;
-    if (activeLandscapeGame && isPortrait && isMobileGameDevice()) {
-      gameOrientOverlay.style.display = 'block';
-    } else {
-      gameOrientOverlay.style.display = 'none';
-    }
-  }
-
-  function hideOrientationPrompt() {
-    if (gameOrientOverlay) gameOrientOverlay.style.display = 'none';
-  }
-
   async function requestGameLandscape(gameType) {
     activeLandscapeGame = gameType;
+    const targetWrapper = gameType === 'runner' ? runnerWrapper : defenseWrapper;
 
-    // 1. Try Screen Orientation Lock API (Locks physical display to landscape on supported devices)
+    if (targetWrapper) {
+      targetWrapper.classList.add('game-landscape-active');
+    }
+    document.body.classList.add('game-landscape-lock');
+
+    // 1. Fullscreen API
+    try {
+      const el = targetWrapper || document.documentElement;
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        if (el.requestFullscreen) {
+          await el.requestFullscreen({ navigationUI: 'hide' }).catch(() => {});
+        } else if (el.webkitRequestFullscreen) {
+          await el.webkitRequestFullscreen();
+        }
+      }
+    } catch (e) {}
+
+    // 2. Screen Orientation Lock API (Locks physical display to landscape on supported devices)
     try {
       if (screen.orientation && screen.orientation.lock) {
         await screen.orientation.lock('landscape').catch(() => {});
@@ -889,9 +889,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     } catch (e) {}
 
-    // 2. Check orientation toast
-    checkOrientationPrompt(gameType);
-
     // 3. Trigger canvas resize updates
     setTimeout(() => {
       if (typeof updateDefenseCanvasRect === 'function') updateDefenseCanvasRect();
@@ -899,7 +896,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function exitGameLandscape() {
-    hideOrientationPrompt();
+    if (runnerWrapper) runnerWrapper.classList.remove('game-landscape-active');
+    if (defenseWrapper) defenseWrapper.classList.remove('game-landscape-active');
+    document.body.classList.remove('game-landscape-lock');
 
     // Unlock screen orientation
     try {
@@ -930,33 +929,28 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function toggleGameLandscape(gameType) {
-    if (activeLandscapeGame) {
+    const targetWrapper = gameType === 'runner' ? runnerWrapper : defenseWrapper;
+    if (targetWrapper && targetWrapper.classList.contains('game-landscape-active')) {
       exitGameLandscape();
     } else {
       requestGameLandscape(gameType);
     }
   }
 
-  if (orientLockBtn) {
-    orientLockBtn.addEventListener('click', () => {
-      if (activeLandscapeGame) requestGameLandscape(activeLandscapeGame);
-    });
-  }
-
-  if (orientCloseBtn) {
-    orientCloseBtn.addEventListener('click', hideOrientationPrompt);
-  }
-
   window.addEventListener('resize', () => {
-    if (activeLandscapeGame) checkOrientationPrompt(activeLandscapeGame);
     if (typeof updateDefenseCanvasRect === 'function') updateDefenseCanvasRect();
   });
 
   window.addEventListener('orientationchange', () => {
     setTimeout(() => {
-      if (activeLandscapeGame) checkOrientationPrompt(activeLandscapeGame);
       if (typeof updateDefenseCanvasRect === 'function') updateDefenseCanvasRect();
     }, 200);
+  });
+
+  document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+      if (typeof updateDefenseCanvasRect === 'function') updateDefenseCanvasRect();
+    }
   });
 
   document.addEventListener('fullscreenchange', () => {
