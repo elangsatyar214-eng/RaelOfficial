@@ -386,6 +386,8 @@ document.addEventListener('DOMContentLoaded', () => {
   window.futurePlans = futurePlans;
 
   function renderFuturePlans() {
+    futurePlans = getStoredPlans();
+    window.futurePlans = futurePlans;
     if (!futurePlansList) return;
     futurePlansList.innerHTML = '';
 
@@ -436,22 +438,26 @@ document.addEventListener('DOMContentLoaded', () => {
       // Check button toggle
       const checkBtn = card.querySelector('.plan-check-btn');
       checkBtn.addEventListener('click', () => {
-        plan.completed = !plan.completed;
-        saveStoredPlans(futurePlans);
-        if (plan.completed && window.confetti) {
-          window.confetti({
-            particleCount: 60,
-            spread: 70,
-            origin: { y: 0.7 }
-          });
+        futurePlans = getStoredPlans();
+        const target = futurePlans.find(p => p.id === plan.id);
+        if (target) {
+          target.completed = !target.completed;
+          saveStoredPlans(futurePlans);
+          if (target.completed && window.confetti) {
+            window.confetti({
+              particleCount: 60,
+              spread: 70,
+              origin: { y: 0.7 }
+            });
+          }
+          renderFuturePlans();
         }
-        renderFuturePlans();
       });
 
       // Delete button
       const delBtn = card.querySelector('.plan-delete-btn');
       delBtn.addEventListener('click', () => {
-        futurePlans = futurePlans.filter(p => p.id !== plan.id);
+        futurePlans = getStoredPlans().filter(p => p.id !== plan.id);
         saveStoredPlans(futurePlans);
         renderFuturePlans();
       });
@@ -483,6 +489,7 @@ document.addEventListener('DOMContentLoaded', () => {
         date: dateStr
       };
 
+      futurePlans = getStoredPlans();
       futurePlans.unshift(newPlan);
       saveStoredPlans(futurePlans);
       futurePlanInput.value = '';
@@ -10923,12 +10930,20 @@ function initCloudSync() {
 
     // 1. Real-time Listener for Our Story Dreams
     firebaseDb.ref('future_plans').on('value', snapshot => {
-      const remotePlans = snapshot.val();
-      if (remotePlans && Array.isArray(remotePlans) && remotePlans.length > 0) {
-        if (typeof window.futurePlans !== 'undefined') {
-          window.futurePlans = remotePlans;
-        }
+      const rawPlans = snapshot.val();
+      let remotePlans = [];
+      if (Array.isArray(rawPlans)) {
+        remotePlans = rawPlans.filter(Boolean);
+      } else if (rawPlans && typeof rawPlans === 'object') {
+        remotePlans = Object.keys(rawPlans)
+          .sort((a, b) => parseInt(a, 10) - parseInt(b, 10))
+          .map(k => rawPlans[k])
+          .filter(Boolean);
+      }
+
+      if (remotePlans && remotePlans.length > 0) {
         localStorage.setItem(STORAGE_KEY_PLANS, JSON.stringify(remotePlans));
+        window.futurePlans = remotePlans;
         if (typeof window.renderFuturePlans === 'function') {
           window.renderFuturePlans();
         }
@@ -11130,6 +11145,7 @@ function syncPlansToCloud(plans) {
     }
   }
 }
+window.syncPlansToCloud = syncPlansToCloud;
 
 function syncVaultToCloud(data) {
   if (firebaseDb && isCloudLive) {
@@ -11140,6 +11156,7 @@ function syncVaultToCloud(data) {
     }
   }
 }
+window.syncVaultToCloud = syncVaultToCloud;
 
 function syncArenaRecordToCloud(game, key, data) {
   if (firebaseDb && isCloudLive) {
