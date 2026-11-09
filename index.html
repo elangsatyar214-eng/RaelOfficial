@@ -846,6 +846,15 @@
                   <span class="hud-tiny-label">LOVE BONUS</span>
                   <span id="runner-bonus-badge" class="hud-bonus-tag">+0</span>
                 </div>
+
+                <div class="runner-hud-actions">
+                  <button type="button" id="runner-landscape-btn" class="runner-icon-btn" title="Toggle Landscape Fullscreen">
+                    <i data-lucide="maximize-2"></i>
+                  </button>
+                  <button type="button" id="runner-exit-btn" class="runner-icon-btn" title="Keluar / Ganti Karakter">
+                    <i data-lucide="x"></i>
+                  </button>
+                </div>
               </div>
 
               <!-- Canvas Runner Stage -->
@@ -881,6 +890,10 @@
                 <button id="retry-runner-btn" class="glow-button level-devil-btn">
                   <i data-lucide="rotate-ccw"></i>
                   <span>Try Again 🔁</span>
+                </button>
+                <button type="button" id="runner-gameover-exit-btn" class="secondary-btn level-devil-btn" style="margin-top: 0.5rem;">
+                  <i data-lucide="arrow-left"></i>
+                  <span>Ganti Karakter / Keluar</span>
                 </button>
               </div>
             </div>
@@ -2256,8 +2269,11 @@
                   </div>
                 </div>
 
-                <!-- Right: Game Controls (Pause, Exit) -->
+                <!-- Right: Game Controls (Landscape, Pause, Exit) -->
                 <div class="defense-top-actions">
+                  <button type="button" id="defense-landscape-btn" class="defense-icon-btn" title="Toggle Landscape Fullscreen">
+                    <i data-lucide="maximize-2"></i>
+                  </button>
                   <button type="button" id="defense-pause-btn" class="defense-icon-btn" title="Pause Game">
                     <i data-lucide="pause"></i>
                   </button>
@@ -2352,6 +2368,21 @@
               </div>
             </div>
 
+          </div>
+        </div>
+
+        <!-- Mobile Landscape Orientation Helper Overlay -->
+        <div id="game-orientation-overlay" class="game-orientation-overlay" style="display: none;">
+          <div class="orient-card">
+            <div class="orient-phone-anim">📱<span class="rotate-arrow">🔄</span></div>
+            <div class="orient-info">
+              <strong class="orient-title">Miringkan Layar ke Landscape</strong>
+              <p class="orient-desc">Putar HP ke posisi mendatar agar arena pertempuran dan jalanan luas, tidak gepeng, dan nyaman dimainkan!</p>
+            </div>
+            <div class="orient-actions">
+              <button type="button" id="orient-lock-btn" class="glow-button orient-btn">⛶ Kunci Landscape</button>
+              <button type="button" id="orient-close-btn" class="secondary-btn orient-btn">Tetap Main (Portrait)</button>
+            </div>
           </div>
         </div>
       </section>

@@ -123,6 +123,11 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
+    // Exit arena landscape if navigating to other section
+    if (targetId !== 'arena' && typeof exitGameLandscape === 'function') {
+      exitGameLandscape();
+    }
+
     // Lazy init Archives: probe foto hanya saat pertama buka menu Archives
     if (targetId === 'archives') {
       initPolaroidArchivesImages();
@@ -843,7 +848,147 @@ document.addEventListener('DOMContentLoaded', () => {
   const suikaWrapper = document.getElementById('suika-wrapper');
   const defenseWrapper = document.getElementById('defense-wrapper');
 
+  // ==================== ARENA LANDSCAPE & FULLSCREEN HELPER ====================
+  let activeLandscapeGame = null; // 'runner' | 'defense' | null
+
+  function isMobileGameDevice() {
+    return window.innerWidth <= 900 || ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+  }
+
+  const gameOrientOverlay = document.getElementById('game-orientation-overlay');
+  const orientLockBtn = document.getElementById('orient-lock-btn');
+  const orientCloseBtn = document.getElementById('orient-close-btn');
+
+  function checkOrientationPrompt(gameType) {
+    if (!gameOrientOverlay) return;
+    const isPortrait = window.innerHeight > window.innerWidth;
+    if (activeLandscapeGame && isPortrait && isMobileGameDevice()) {
+      gameOrientOverlay.style.display = 'flex';
+    } else {
+      gameOrientOverlay.style.display = 'none';
+    }
+  }
+
+  function hideOrientationPrompt() {
+    if (gameOrientOverlay) gameOrientOverlay.style.display = 'none';
+  }
+
+  async function requestGameLandscape(gameType) {
+    activeLandscapeGame = gameType;
+    const targetWrapper = gameType === 'runner' ? runnerWrapper : defenseWrapper;
+
+    if (targetWrapper) {
+      targetWrapper.classList.add('game-landscape-active');
+    }
+    document.body.classList.add('game-landscape-lock');
+
+    // 1. Fullscreen API
+    try {
+      const el = targetWrapper || document.documentElement;
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        if (el.requestFullscreen) {
+          await el.requestFullscreen({ navigationUI: 'hide' }).catch(() => {});
+        } else if (el.webkitRequestFullscreen) {
+          await el.webkitRequestFullscreen();
+        }
+      }
+    } catch (e) {}
+
+    // 2. Screen Orientation Lock API (Locks physical display to landscape on mobile)
+    try {
+      if (screen.orientation && screen.orientation.lock) {
+        await screen.orientation.lock('landscape').catch(() => {});
+      } else if (screen.lockOrientation) {
+        screen.lockOrientation('landscape');
+      } else if (screen.webkitLockOrientation) {
+        screen.webkitLockOrientation('landscape');
+      } else if (screen.mozLockOrientation) {
+        screen.mozLockOrientation('landscape');
+      }
+    } catch (e) {}
+
+    // 3. Check orientation helper overlay
+    checkOrientationPrompt(gameType);
+
+    // 4. Trigger canvas resize updates
+    setTimeout(() => {
+      if (typeof updateDefenseCanvasRect === 'function') updateDefenseCanvasRect();
+    }, 250);
+  }
+
+  function exitGameLandscape() {
+    if (runnerWrapper) runnerWrapper.classList.remove('game-landscape-active');
+    if (defenseWrapper) defenseWrapper.classList.remove('game-landscape-active');
+    document.body.classList.remove('game-landscape-lock');
+    hideOrientationPrompt();
+
+    // Unlock screen orientation
+    try {
+      if (screen.orientation && screen.orientation.unlock) {
+        screen.orientation.unlock();
+      } else if (screen.unlockOrientation) {
+        screen.unlockOrientation();
+      } else if (screen.webkitUnlockOrientation) {
+        screen.webkitUnlockOrientation();
+      }
+    } catch (e) {}
+
+    // Exit fullscreen
+    try {
+      if (document.fullscreenElement || document.webkitFullscreenElement) {
+        if (document.exitFullscreen) {
+          document.exitFullscreen().catch(() => {});
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        }
+      }
+    } catch (e) {}
+
+    activeLandscapeGame = null;
+    setTimeout(() => {
+      if (typeof updateDefenseCanvasRect === 'function') updateDefenseCanvasRect();
+    }, 200);
+  }
+
+  function toggleGameLandscape(gameType) {
+    const targetWrapper = gameType === 'runner' ? runnerWrapper : defenseWrapper;
+    if (targetWrapper && (targetWrapper.classList.contains('game-landscape-active') || document.fullscreenElement)) {
+      exitGameLandscape();
+    } else {
+      requestGameLandscape(gameType);
+    }
+  }
+
+  if (orientLockBtn) {
+    orientLockBtn.addEventListener('click', () => {
+      if (activeLandscapeGame) requestGameLandscape(activeLandscapeGame);
+    });
+  }
+
+  if (orientCloseBtn) {
+    orientCloseBtn.addEventListener('click', hideOrientationPrompt);
+  }
+
+  window.addEventListener('resize', () => {
+    if (activeLandscapeGame) checkOrientationPrompt(activeLandscapeGame);
+    if (typeof updateDefenseCanvasRect === 'function') updateDefenseCanvasRect();
+  });
+
+  window.addEventListener('orientationchange', () => {
+    setTimeout(() => {
+      if (activeLandscapeGame) checkOrientationPrompt(activeLandscapeGame);
+      if (typeof updateDefenseCanvasRect === 'function') updateDefenseCanvasRect();
+    }, 200);
+  });
+
+  document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+      if (typeof updateDefenseCanvasRect === 'function') updateDefenseCanvasRect();
+    }
+  });
+
   function switchArenaTab(activeTab) {
+    exitGameLandscape();
     [tabQuizBtn, tabGameBtn, tabRunnerBtn, tabBlockBlastBtn, tabCookoffBtn, tabRhythmBtn, tabSuikaBtn, tabDefenseBtn].forEach(b => {
       if (b) b.classList.remove('active');
     });
@@ -1184,6 +1329,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const victoryReplayBtn = document.getElementById('victory-replay-btn');
   const victoryChangeCharBtn = document.getElementById('victory-change-char-btn');
   const victoryCornerCloseBtn = document.getElementById('victory-corner-close-btn');
+  const runnerLandscapeBtn = document.getElementById('runner-landscape-btn');
+  const runnerExitBtn = document.getElementById('runner-exit-btn');
+  const runnerGameoverExitBtn = document.getElementById('runner-gameover-exit-btn');
 
   // Fast smart image loader supporting .jpeg, .jpg, .png, .webp (0ms delay fallback)
   function createSmartMultiImage(candidates, fallbackSvg, onLoadSuccess) {
@@ -1465,13 +1613,29 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Start & Retry Handlers
+  if (runnerLandscapeBtn) {
+    runnerLandscapeBtn.addEventListener('click', () => toggleGameLandscape('runner'));
+  }
+
+  if (runnerExitBtn) {
+    runnerExitBtn.addEventListener('click', resetToCharSelect);
+  }
+
+  if (runnerGameoverExitBtn) {
+    runnerGameoverExitBtn.addEventListener('click', resetToCharSelect);
+  }
+
   if (startRunnerBtn) {
-    startRunnerBtn.addEventListener('click', initRunnerGame);
+    startRunnerBtn.addEventListener('click', () => {
+      requestGameLandscape('runner');
+      initRunnerGame();
+    });
   }
 
   if (retryRunnerBtn) {
     retryRunnerBtn.addEventListener('click', () => {
       runnerGameoverScreen.style.display = 'none';
+      requestGameLandscape('runner');
       initRunnerGame();
     });
   }
@@ -1519,10 +1683,12 @@ document.addEventListener('DOMContentLoaded', () => {
     runnerVictoryScreen.style.display = 'none';
     if (rejectionWarningBox) rejectionWarningBox.style.display = 'none';
     if (royalDeclarationBox) royalDeclarationBox.style.display = 'none';
+    requestGameLandscape('runner');
     initRunnerGame();
   }
 
   function resetToCharSelect() {
+    exitGameLandscape();
     runnerGameActive = false;
     if (runnerAnimFrameId) cancelAnimationFrame(runnerAnimFrameId);
     runnerPlayScreen.style.display = 'none';
@@ -1551,6 +1717,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function initRunnerGame() {
+    if (isMobileGameDevice()) {
+      requestGameLandscape('runner');
+    }
     runnerSelectScreen.style.display = 'none';
     runnerGameoverScreen.style.display = 'none';
     runnerVictoryScreen.style.display = 'none';
@@ -7577,6 +7746,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const defenseCardRachel = document.getElementById('defense-card-rachel');
   const defenseCardElang = document.getElementById('defense-card-elang');
   const defenseStartBtn = document.getElementById('defense-start-btn');
+  const defenseLandscapeBtn = document.getElementById('defense-landscape-btn');
   const defenseSecretResetBtn = document.getElementById('defense-secret-reset-btn');
   const defensePauseBtn = document.getElementById('defense-pause-btn');
   const defenseExitBtn = document.getElementById('defense-exit-btn');
@@ -8178,6 +8348,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Start / Init Love Defense Match
   function startDefenseGame() {
+    if (isMobileGameDevice()) {
+      requestGameLandscape('defense');
+    }
     defenseState = 'playing';
     defenseEnergy = 225; // Modal awal dinaikkan agar pemain dapat langsung menanam 1-2 tanaman awal!
     defenseSelectedSeed = null;
@@ -9663,8 +9836,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function getDefenseCanvasPos(e) {
     if (!defenseCanvas) return { x: 0, y: 0 };
-    if (!defenseCanvasRect) updateDefenseCanvasRect();
-    const rect = defenseCanvasRect;
+    const rect = defenseCanvas.getBoundingClientRect();
     const scaleX = defenseCanvas.width / rect.width;
     const scaleY = defenseCanvas.height / rect.height;
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -9775,8 +9947,13 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Button Listeners
+  if (defenseLandscapeBtn) {
+    defenseLandscapeBtn.addEventListener('click', () => toggleGameLandscape('defense'));
+  }
+
   if (defenseStartBtn) {
     defenseStartBtn.addEventListener('click', () => {
+      requestGameLandscape('defense');
       startDefenseGame();
     });
   }
@@ -9798,6 +9975,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (defenseExitBtn) {
     defenseExitBtn.addEventListener('click', () => {
+      exitGameLandscape();
       defenseState = 'lobby';
       if (defenseAnimFrameId) cancelAnimationFrame(defenseAnimFrameId);
       if (defenseGameScreen) defenseGameScreen.style.display = 'none';
@@ -9810,12 +9988,14 @@ document.addEventListener('DOMContentLoaded', () => {
   if (defenseRetryBtn) {
     defenseRetryBtn.addEventListener('click', () => {
       if (defenseResultModal) defenseResultModal.style.display = 'none';
+      requestGameLandscape('defense');
       startDefenseGame();
     });
   }
 
   if (defenseBackToMenuBtn) {
     defenseBackToMenuBtn.addEventListener('click', () => {
+      exitGameLandscape();
       defenseState = 'lobby';
       if (defenseGameScreen) defenseGameScreen.style.display = 'none';
       if (defenseSelectScreen) defenseSelectScreen.style.display = 'block';
