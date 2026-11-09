@@ -10910,7 +10910,7 @@ function renderVaultUI() {
 // =========================================================================
 // URL Firebase Realtime Database kamu bisa ditulis langsung di sini
 // atau diinput lewat modal Cloud Sync di website
-const HARDCODED_FIREBASE_DB_URL = ""; 
+const HARDCODED_FIREBASE_DB_URL = "https://raelofficial-61122-default-rtdb.firebaseio.com"; 
 
 let firebaseDb = null;
 let isCloudLive = false;
@@ -10996,6 +10996,24 @@ function initCloudSync() {
       }
     }, err => {
       console.warn('Firebase vault listener error:', err);
+    });
+
+    // 3. Auto-seed cloud if database is currently empty
+    firebaseDb.ref('future_plans').once('value').then(snap => {
+      if (!snap.exists() || !snap.val()) {
+        const stored = localStorage.getItem(STORAGE_KEY_PLANS);
+        let plansToSeed = DEFAULT_FUTURE_PLANS;
+        if (stored) {
+          try { plansToSeed = JSON.parse(stored); } catch (e) {}
+        }
+        firebaseDb.ref('future_plans').set(plansToSeed);
+      }
+    });
+
+    firebaseDb.ref('vault_data').once('value').then(snap => {
+      if (!snap.exists() || !snap.val()) {
+        firebaseDb.ref('vault_data').set(getVaultData());
+      }
     });
 
   } catch (err) {
