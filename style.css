@@ -4152,33 +4152,6 @@ body {
   margin-bottom: 0.45rem;
 }
 
-.cloud-quick-share-box {
-  margin-top: 1.5rem;
-  border-top: 1px dashed rgba(245, 197, 24, 0.3);
-  padding-top: 1.25rem;
-}
-
-.cloud-quick-share-box h5 {
-  font-size: 0.88rem;
-  color: #fff;
-  margin-bottom: 0.35rem;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.cloud-quick-share-box p {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  margin-bottom: 0.75rem;
-}
-
-.quick-share-btns {
-  display: flex;
-  gap: 0.65rem;
-  flex-wrap: wrap;
-}
-
 /* ==================== 10. MODAL VIEWER ==================== */
 .modal-backdrop {
   position: fixed;

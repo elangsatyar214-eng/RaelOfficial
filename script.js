@@ -2371,6 +2371,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const current = getBBHighScore(char);
       if (score > current) {
         localStorage.setItem(char === 'rachel' ? BB_KEY_RACHEL : BB_KEY_ELANG, score.toString());
+        if (typeof syncArenaRecordToCloud === 'function') {
+          syncArenaRecordToCloud('block_blast', char, score);
+        }
         return true;
       }
     } catch (e) { }
@@ -3246,6 +3249,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const cur = getCookoffHighScore();
       if (score > cur) {
         localStorage.setItem(COOKOFF_KEY_HIGHSCORE, score.toString());
+        if (typeof syncArenaRecordToCloud === 'function') {
+          syncArenaRecordToCloud('cookoff', 'highscore', score);
+        }
         return true;
       }
     } catch (e) { }
@@ -4028,6 +4034,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (score > current) {
         const key = `rhythm_rec_${songId}_${mode}_${player}`;
         localStorage.setItem(key, score.toString());
+        if (typeof syncArenaRecordToCloud === 'function') {
+          syncArenaRecordToCloud('rhythm', key, score);
+        }
         return true;
       }
     } catch (e) { }
@@ -6481,6 +6490,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (score > cur) {
         const key = `suika_rec_${mode}_${diff}_${player}`;
         localStorage.setItem(key, score.toString());
+        if (typeof syncArenaRecordToCloud === 'function') {
+          syncArenaRecordToCloud('suika', key, score);
+        }
         return true;
       }
     } catch (e) { }
@@ -6504,6 +6516,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (level > cur) {
         const key = `suika_target_planet_${diff}_${player}`;
         localStorage.setItem(key, level.toString());
+        if (typeof syncArenaRecordToCloud === 'function') {
+          syncArenaRecordToCloud('suika', key, level);
+        }
         return true;
       }
     } catch (e) { }
@@ -7730,6 +7745,9 @@ document.addEventListener('DOMContentLoaded', () => {
   function saveDefenseRecords() {
     try {
       localStorage.setItem(DEFENSE_STORAGE_KEY, JSON.stringify(defenseRecords));
+      if (typeof syncArenaRecordToCloud === 'function') {
+        syncArenaRecordToCloud('defense', 'records', defenseRecords);
+      }
     } catch (e) {
       console.warn('Could not save defense records:', e);
     }
@@ -8193,6 +8211,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Update Lobby High Score UI
   function updateDefenseHighScoresUI() {
+    try {
+      const savedDefense = localStorage.getItem(DEFENSE_STORAGE_KEY);
+      if (savedDefense) {
+        defenseRecords = Object.assign(defenseRecords, JSON.parse(savedDefense));
+      }
+    } catch (e) {}
     if (defenseBestRachelEl) {
       defenseBestRachelEl.textContent = `${defenseRecords.rachelWins || 0} Kemenangan`;
     }
@@ -10036,6 +10060,9 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     try {
       localStorage.removeItem(DEFENSE_STORAGE_KEY);
+      if (typeof syncArenaRecordToCloud === 'function') {
+        syncArenaRecordToCloud('defense', 'records', defenseRecords);
+      }
     } catch (e) {
       console.warn('Could not reset defense records:', e);
     }
@@ -10065,6 +10092,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Initial render of Love Defense lobby records
   updateDefenseHighScoresUI();
+
+  // Expose Arena UI updaters globally for Firebase real-time sync
+  window.updateBlockBlastHighScoresUI = updateBlockBlastHighScoresUI;
+  window.updateCookoffHighScoresUI = updateCookoffHighScoresUI;
+  window.updateRhythmHighScoresUI = updateRhythmHighScoresUI;
+  window.updateSuikaHighScoresUI = updateSuikaHighScoresUI;
+  window.updateDefenseHighScoresUI = updateDefenseHighScoresUI;
 
   // ==================== 9. SECRET VAULT: WAX SEAL ENVELOPE ====================
   const waxSealTrigger = document.getElementById('wax-seal-trigger');
@@ -10383,29 +10417,8 @@ window.requestClaimVoucher = function(owner, voucherId) {
 
   renderVaultUI();
 
-  // Show option to sync to partner via WhatsApp
   const partnerName = owner === 'rachel' ? 'Elang' : 'Rachel';
-  const syncPayload = encodeVaultSyncPayload({
-    type: 'claim',
-    id: voucherId,
-    claimant: owner,
-    title: title,
-    timestamp: Date.now()
-  });
-
-  const siteUrl = window.location.origin + window.location.pathname;
-  const deepLink = `${siteUrl}#vault?sync=${syncPayload}`;
-  const waMsg = encodeURIComponent(
-    `Hai ${partnerName}! ❤️\n\nAku baru saja mengajukan klaim Voucher: "${title}".\nBuka website kita dan setujui yaa:\n${deepLink}`
-  );
-
-  const confirmWA = confirm(
-    `Permintaan klaim "${title}" berhasil diajukan dan menunggu persetujuan ${partnerName}! 💌\n\nApakah kamu mau mengirimkan notifikasi via WhatsApp ke ${partnerName} sekarang?`
-  );
-
-  if (confirmWA) {
-    window.open(`https://wa.me/?text=${waMsg}`, '_blank');
-  }
+  alert(`Permintaan klaim "${title}" berhasil diajukan dan langsung muncul di vault ${partnerName} secara real-time! 💌`);
 };
 
 // Backward compatibility for old claimVoucher calls
@@ -10463,30 +10476,15 @@ window.submitDateProposal = function(e) {
     window.confetti({ particleCount: 90, spread: 60, origin: { y: 0.7 } });
   }
 
-  // Show Success Box with WA Share
+  // Show Success Box
   const successBox = document.getElementById('propose-success-box');
   const successTitle = document.getElementById('propose-success-title');
   const successDesc = document.getElementById('propose-success-desc');
-  const waBtn = document.getElementById('propose-wa-btn');
-
-  const syncPayload = encodeVaultSyncPayload({
-    type: 'proposal',
-    proposal: newProp
-  });
-
-  const siteUrl = window.location.origin + window.location.pathname;
-  const deepLink = `${siteUrl}#vault?sync=${syncPayload}`;
-  const waMsg = encodeURIComponent(
-    `Hai ${partnerName}! 💖\n\n${myName} baru saja mengajukan ide kencan baru: "${emoji} ${title}"\nDeskripsi: "${desc}"\n\nYuk buka website kita dan pilih setujui atau tolak di sini:\n${deepLink}`
-  );
 
   if (successBox) {
     if (successTitle) successTitle.textContent = `Ide Kencan Berhasil Dikirim ke ${partnerName}! 🎉`;
     if (successDesc) {
-      successDesc.textContent = `Pengajuan kencan "${title}" sudah dicatat. Begitu ${partnerName} membuka akunnya, notifikasi persetujuan akan langsung muncul.`;
-    }
-    if (waBtn) {
-      waBtn.href = `https://wa.me/?text=${waMsg}`;
+      successDesc.textContent = `Pengajuan kencan "${title}" sudah otomatis tersimpan di Cloud Database dan langsung muncul di vault ${partnerName} secara real-time! ✨`;
     }
     successBox.style.display = 'block';
   }
@@ -10526,34 +10524,12 @@ window.respondToVaultRequest = function(type, id, action) {
 
   renderVaultUI();
 
-  // Create WhatsApp notification reply
+  // Real-time Cloud confirmation
   if (targetItem) {
     const partnerName = partner === 'rachel' ? 'Rachel' : 'Elang';
-    const myName = activeVaultUser === 'rachel' ? 'Rachel' : 'Elang';
     const itemTitle = targetItem.title || 'Kencan Spesial';
-
-    const syncPayload = encodeVaultSyncPayload({
-      type: 'decision',
-      requestType: type,
-      id: id,
-      action: action,
-      decidedBy: activeVaultUser,
-      timestamp: Date.now()
-    });
-
-    const siteUrl = window.location.origin + window.location.pathname;
-    const deepLink = `${siteUrl}#vault?sync=${syncPayload}`;
-    const statusText = isApprove ? 'MENYETUJUI' : 'MINTA GANTI JADWAL / BELUM BISA';
-    const waMsg = encodeURIComponent(
-      `Hai ${partnerName}! 💌\n\n${myName} telah ${statusText} pengajuan kencanmu: "${itemTitle}".\n\nCek update terbarunya di website kita ya:\n${deepLink}`
-    );
-
-    const askWA = confirm(
-      `Status berhasil diubah menjadi "${isApprove ? 'Disetujui 💖' : 'Ditolak 🥺'}".\n\nKirimkan konfirmasi ini via WhatsApp ke ${partnerName}?`
-    );
-    if (askWA) {
-      window.open(`https://wa.me/?text=${waMsg}`, '_blank');
-    }
+    const statusLabel = isApprove ? 'Disetujui 💖' : 'Ditolak / Minta Ganti Jadwal 🥺';
+    alert(`Status kencan "${itemTitle}" berhasil diubah menjadi "${statusLabel}" dan langsung tersinkronkan ke layar ${partnerName} secara real-time! ✨`);
   }
 };
 
@@ -10835,11 +10811,6 @@ function renderVaultUI() {
       const claim = vaultData.claims[vId];
       btn.classList.remove('claimed', 'pending', 'rejected');
 
-      // Clear any existing ping links
-      const parent = btn.parentElement;
-      const existingPing = parent ? parent.querySelector('.wa-ping-link') : null;
-      if (existingPing) existingPing.remove();
-
       if (!claim || !claim.status) {
         btn.innerHTML = `<span>Claim This Voucher ${userPrefix === 'rachel' ? '💖' : '⚡'}</span>`;
         btn.onclick = () => window.requestClaimVoucher(userPrefix, vId);
@@ -10847,18 +10818,6 @@ function renderVaultUI() {
         btn.classList.add('pending');
         btn.innerHTML = `<span>Menunggu Persetujuan ${userPrefix === 'rachel' ? 'Elang' : 'Rachel'} ⏳</span>`;
         btn.onclick = () => alert(`Permintaan sedang menunggu konfirmasi dari ${userPrefix === 'rachel' ? 'Elang' : 'Rachel'} ❤️`);
-
-        // Add quick WA ping link
-        if (parent && activeVaultUser === userPrefix) {
-          const pingA = document.createElement('a');
-          pingA.className = 'wa-ping-link';
-          pingA.target = '_blank';
-          pingA.rel = 'noopener noreferrer';
-          const deepLink = `${window.location.origin}${window.location.pathname}#vault?sync=${encodeVaultSyncPayload({ type: 'claim', id: vId, claimant: userPrefix, title: getVoucherCardTitle(vId) })}`;
-          pingA.href = `https://wa.me/?text=${encodeURIComponent(`Sayang, jangan lupa setujui klaim voucherkku yaa: "${getVoucherCardTitle(vId)}" ❤️\n${deepLink}`)}`;
-          pingA.innerHTML = '<i data-lucide="message-circle" style="width:14px;height:14px;"></i> Ingatkan via WhatsApp';
-          parent.appendChild(pingA);
-        }
       } else if (claim.status === 'approved') {
         btn.classList.add('claimed');
         btn.innerHTML = `<span>TERKLAIM & DISETUJUI! ❤️ (${userPrefix === 'rachel' ? 'Elang' : 'Rachel'} Siap Menemani)</span>`;
@@ -10998,7 +10957,91 @@ function initCloudSync() {
       console.warn('Firebase vault listener error:', err);
     });
 
-    // 3. Auto-seed cloud if database is currently empty
+    // 3. Real-time Listener for The Arena Minigames Records
+    firebaseDb.ref('arena_records').on('value', snapshot => {
+      const remoteArena = snapshot.val();
+      if (remoteArena && typeof remoteArena === 'object') {
+        // Block Blast
+        if (remoteArena.block_blast) {
+          if (typeof remoteArena.block_blast.rachel !== 'undefined') {
+            const cur = parseInt(localStorage.getItem('love_bb_highscore_rachel'), 10) || 0;
+            if (remoteArena.block_blast.rachel > cur) {
+              localStorage.setItem('love_bb_highscore_rachel', remoteArena.block_blast.rachel.toString());
+            }
+          }
+          if (typeof remoteArena.block_blast.elang !== 'undefined') {
+            const cur = parseInt(localStorage.getItem('love_bb_highscore_elang'), 10) || 0;
+            if (remoteArena.block_blast.elang > cur) {
+              localStorage.setItem('love_bb_highscore_elang', remoteArena.block_blast.elang.toString());
+            }
+          }
+        }
+
+        // Date Night Cook-Off
+        if (remoteArena.cookoff && typeof remoteArena.cookoff.highscore !== 'undefined') {
+          const cur = parseInt(localStorage.getItem('cookoff_highscore'), 10) || 0;
+          if (remoteArena.cookoff.highscore > cur) {
+            localStorage.setItem('cookoff_highscore', remoteArena.cookoff.highscore.toString());
+          }
+        }
+
+        // Cosmic Beats (Piano Tiles)
+        if (remoteArena.rhythm && typeof remoteArena.rhythm === 'object') {
+          Object.keys(remoteArena.rhythm).forEach(k => {
+            const rVal = remoteArena.rhythm[k];
+            const cur = parseInt(localStorage.getItem(k), 10) || 0;
+            if (rVal > cur) {
+              localStorage.setItem(k, rVal.toString());
+            }
+          });
+        }
+
+        // Cosmic Drop (Suika)
+        if (remoteArena.suika && typeof remoteArena.suika === 'object') {
+          Object.keys(remoteArena.suika).forEach(k => {
+            const rVal = remoteArena.suika[k];
+            const cur = parseInt(localStorage.getItem(k), 10) || 0;
+            if (rVal > cur) {
+              localStorage.setItem(k, rVal.toString());
+            }
+          });
+        }
+
+        // Love Defense (Plants vs Mantan)
+        if (remoteArena.defense && remoteArena.defense.records) {
+          try {
+            const localDefRaw = localStorage.getItem('rayang_defense_records_v1');
+            const localDef = localDefRaw ? JSON.parse(localDefRaw) : {};
+            const rDef = remoteArena.defense.records;
+
+            const mergedDef = {
+              rachelWins: Math.max(localDef.rachelWins || 0, rDef.rachelWins || 0),
+              elangWins: Math.max(localDef.elangWins || 0, rDef.elangWins || 0),
+              rachelBestTime: (localDef.rachelBestTime && rDef.rachelBestTime)
+                ? Math.min(localDef.rachelBestTime, rDef.rachelBestTime)
+                : (localDef.rachelBestTime || rDef.rachelBestTime || null),
+              elangBestTime: (localDef.elangBestTime && rDef.elangBestTime)
+                ? Math.min(localDef.elangBestTime, rDef.elangBestTime)
+                : (localDef.elangBestTime || rDef.elangBestTime || null)
+            };
+            localStorage.setItem('rayang_defense_records_v1', JSON.stringify(mergedDef));
+          } catch (e) {
+            console.warn('Error merging defense records from cloud:', e);
+          }
+        }
+
+        // Trigger UI updates across games
+        if (typeof window.updateBlockBlastHighScoresUI === 'function') window.updateBlockBlastHighScoresUI();
+        if (typeof window.updateCookoffHighScoresUI === 'function') window.updateCookoffHighScoresUI();
+        if (typeof window.updateRhythmHighScoresUI === 'function') window.updateRhythmHighScoresUI();
+        if (typeof window.updateSuikaHighScoresUI === 'function') window.updateSuikaHighScoresUI();
+        if (typeof window.updateDefenseHighScoresUI === 'function') window.updateDefenseHighScoresUI();
+      }
+    }, err => {
+      console.warn('Firebase arena listener error:', err);
+    });
+
+    // 4. Auto-seed cloud if database is currently empty
     firebaseDb.ref('future_plans').once('value').then(snap => {
       if (!snap.exists() || !snap.val()) {
         const stored = localStorage.getItem(STORAGE_KEY_PLANS);
@@ -11013,6 +11056,62 @@ function initCloudSync() {
     firebaseDb.ref('vault_data').once('value').then(snap => {
       if (!snap.exists() || !snap.val()) {
         firebaseDb.ref('vault_data').set(getVaultData());
+      }
+    });
+
+    // Auto-seed arena records if cloud is missing or local has higher scores
+    firebaseDb.ref('arena_records').once('value').then(snap => {
+      const remote = snap.val() || {};
+      const updates = {};
+
+      const bbRachel = parseInt(localStorage.getItem('love_bb_highscore_rachel'), 10) || 0;
+      const bbElang = parseInt(localStorage.getItem('love_bb_highscore_elang'), 10) || 0;
+      if (bbRachel > ((remote.block_blast && remote.block_blast.rachel) || 0)) {
+        updates['arena_records/block_blast/rachel'] = bbRachel;
+      }
+      if (bbElang > ((remote.block_blast && remote.block_blast.elang) || 0)) {
+        updates['arena_records/block_blast/elang'] = bbElang;
+      }
+
+      const cookoff = parseInt(localStorage.getItem('cookoff_highscore'), 10) || 0;
+      if (cookoff > ((remote.cookoff && remote.cookoff.highscore) || 0)) {
+        updates['arena_records/cookoff/highscore'] = cookoff;
+      }
+
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith('rhythm_rec_')) {
+          const val = parseInt(localStorage.getItem(k), 10) || 0;
+          const remoteVal = (remote.rhythm && remote.rhythm[k]) || 0;
+          if (val > remoteVal) {
+            updates[`arena_records/rhythm/${k}`] = val;
+          }
+        }
+      }
+
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && (k.startsWith('suika_rec_') || k.startsWith('suika_target_planet_'))) {
+          const val = parseInt(localStorage.getItem(k), 10) || 0;
+          const remoteVal = (remote.suika && remote.suika[k]) || 0;
+          if (val > remoteVal) {
+            updates[`arena_records/suika/${k}`] = val;
+          }
+        }
+      }
+
+      const defRaw = localStorage.getItem('rayang_defense_records_v1');
+      if (defRaw) {
+        try {
+          const localDef = JSON.parse(defRaw);
+          if (!remote.defense || !remote.defense.records) {
+            updates['arena_records/defense/records'] = localDef;
+          }
+        } catch (e) {}
+      }
+
+      if (Object.keys(updates).length > 0) {
+        firebaseDb.ref().update(updates);
       }
     });
 
@@ -11041,6 +11140,17 @@ function syncVaultToCloud(data) {
     }
   }
 }
+
+function syncArenaRecordToCloud(game, key, data) {
+  if (firebaseDb && isCloudLive) {
+    try {
+      firebaseDb.ref(`arena_records/${game}/${key}`).set(data);
+    } catch (e) {
+      console.warn('Error pushing arena record to cloud:', e);
+    }
+  }
+}
+window.syncArenaRecordToCloud = syncArenaRecordToCloud;
 
 window.openCloudSyncModal = function(origin) {
   const modal = document.getElementById('cloud-sync-modal');
@@ -11101,47 +11211,6 @@ window.saveFirebaseDatabaseUrl = function() {
 
   alert('🎉 Berhasil terhubung ke Cloud Database! Sekarang seluruh HP dan Laptop akan tersinkronisasi otomatis secara Live!');
   closeCloudSyncModal();
-};
-
-// Zero-Config Instant Share Links
-window.shareDreamsSyncLink = function() {
-  let plans = [];
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY_PLANS);
-    if (raw) plans = JSON.parse(raw);
-  } catch (e) {}
-  if (!plans.length && window.futurePlans) plans = window.futurePlans;
-
-  const payload = encodeVaultSyncPayload(plans);
-  const siteUrl = window.location.origin + window.location.pathname;
-  const deepLink = `${siteUrl}#story?sync_dreams=${payload}`;
-  const waMsg = encodeURIComponent(
-    `Hai Sayang! 💖\n\nIni daftar impian & rencana masa depan kita yang terbaru. Buka tautan ini di HP atau Laptop kamu untuk menyinkronkannya yaa:\n${deepLink}`
-  );
-
-  const proceed = confirm(
-    `Tautan sinkronisasi daftar impian siap dikirim!\n\nApakah kamu mau mengirimkannya via WhatsApp ke pasangan sekarang?`
-  );
-  if (proceed) {
-    window.open(`https://wa.me/?text=${waMsg}`, '_blank');
-  }
-};
-
-window.shareVaultSyncLink = function() {
-  const data = getVaultData();
-  const payload = encodeVaultSyncPayload(data);
-  const siteUrl = window.location.origin + window.location.pathname;
-  const deepLink = `${siteUrl}#vault?sync_vault=${payload}`;
-  const waMsg = encodeURIComponent(
-    `Hai Sayang! 💌\n\nIni pembaruan voucher kencan & pengajuan kita. Buka tautan ini di HP atau Laptop kamu untuk menyinkronkannya:\n${deepLink}`
-  );
-
-  const proceed = confirm(
-    `Tautan sinkronisasi voucher kencan siap dikirim!\n\nApakah kamu mau mengirimkannya via WhatsApp ke pasangan sekarang?`
-  );
-  if (proceed) {
-    window.open(`https://wa.me/?text=${waMsg}`, '_blank');
-  }
 };
 
 function checkGlobalDeepSync() {

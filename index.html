@@ -461,13 +461,9 @@
             </p>
             <div class="future-stats-badge">
               <span id="future-plans-count">0 / 0 Achieved 🌟</span>
-              <button type="button" class="plan-sync-badge-btn" onclick="openCloudSyncModal('story')" title="Klik untuk status Cloud Sync">
-                <span class="cloud-indicator-dot dot-yellow" id="cloud-indicator-story"></span>
-                <span id="cloud-status-text-story">Cloud Sync</span>
-              </button>
-              <button type="button" class="plan-share-badge-btn" onclick="shareDreamsSyncLink()" title="Sinkronkan impian ke HP atau Laptop lain via WhatsApp / Link">
-                <i data-lucide="share-2"></i>
-                <span>Sinkronkan ke HP/Laptop 📲</span>
+              <button type="button" class="plan-sync-badge-btn" onclick="openCloudSyncModal('story')" title="Status Cloud Sync">
+                <span class="cloud-indicator-dot dot-green" id="cloud-indicator-story"></span>
+                <span id="cloud-status-text-story">Cloud Live 🟢</span>
               </button>
             </div>
           </div>
@@ -2719,12 +2715,8 @@
                 <!-- Feedback after proposal -->
                 <div id="propose-success-box" class="propose-success-box" style="display: none;">
                   <div class="success-icon">🎉</div>
-                  <h4 id="propose-success-title">Berhasil Dikirimkan!</h4>
-                  <p id="propose-success-desc">Ide kencanmu sudah tersimpan dan akan muncul di akun pasanganmu untuk disetujui.</p>
-                  <a id="propose-wa-btn" href="#" target="_blank" rel="noopener noreferrer" class="glow-button sec-btn wa-share-btn">
-                    <i data-lucide="message-circle"></i>
-                    <span>Kirim Notifikasi via WhatsApp 📲</span>
-                  </a>
+                  <h4 id="propose-success-title">Berhasil Dikirimkan ke Cloud!</h4>
+                  <p id="propose-success-desc">Ide kencanmu sudah tersimpan di Firebase dan langsung muncul di akun pasanganmu untuk disetujui secara real-time! ✨</p>
                 </div>
               </div>
             </div>
@@ -2829,21 +2821,6 @@
           </div>
         </details>
 
-        <!-- Opsi Sinkronisasi Cepat Tanpa Firebase (Via Link) -->
-        <div class="cloud-quick-share-box">
-          <h5><i data-lucide="zap"></i> Ingin Sinkronkan Cepat Sekarang Tanpa Firebase?</h5>
-          <p>Kamu bisa langsung membagikan seluruh data impian &amp; voucher ke perangkat lain via tautan WhatsApp:</p>
-          <div class="quick-share-btns">
-            <button type="button" class="glow-button sec-btn" onclick="shareDreamsSyncLink()">
-              <i data-lucide="share-2"></i>
-              <span>Sinkronkan Daftar Impian (Our Story) 📲</span>
-            </button>
-            <button type="button" class="glow-button sec-btn" onclick="shareVaultSyncLink()">
-              <i data-lucide="share-2"></i>
-              <span>Sinkronkan Voucher Kencan (Secret Vault) 📲</span>
-            </button>
-          </div>
-        </div>
       </div>
     </div>
 
