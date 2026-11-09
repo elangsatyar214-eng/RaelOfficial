@@ -9566,9 +9566,10 @@ body.game-landscape-lock .site-header {
   align-items: center !important;
   justify-content: center !important;
   margin: 0 auto !important;
-  width: 100% !important;
+  width: auto !important;
   max-width: min(84vw, 560px) !important;
   max-height: min(56vh, 230px) !important;
+  aspect-ratio: 850 / 420 !important;
   box-sizing: border-box !important;
 }
 
@@ -9578,7 +9579,6 @@ body.game-landscape-lock .site-header {
   max-width: 100% !important;
   max-height: 100% !important;
   aspect-ratio: 850 / 420 !important;
-  object-fit: contain !important;
   margin: 0 auto !important;
   display: block !important;
   border-radius: 8px !important;

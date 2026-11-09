@@ -9826,13 +9826,38 @@ document.addEventListener('DOMContentLoaded', () => {
   function getDefenseCanvasPos(e) {
     if (!defenseCanvas) return { x: 0, y: 0 };
     const rect = defenseCanvas.getBoundingClientRect();
-    const scaleX = defenseCanvas.width / rect.width;
-    const scaleY = defenseCanvas.height / rect.height;
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    if (!rect.width || !rect.height) return { x: 0, y: 0 };
+
+    const canvasAspect = defenseCanvas.width / defenseCanvas.height; // 850 / 420 = 2.0238
+    const elemAspect = rect.width / rect.height;
+
+    let renderedWidth = rect.width;
+    let renderedHeight = rect.height;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    // Compensate for letterbox / pillarbox offset on responsive touchscreens
+    if (elemAspect > canvasAspect + 0.001) {
+      renderedWidth = rect.height * canvasAspect;
+      offsetX = (rect.width - renderedWidth) / 2;
+    } else if (elemAspect < canvasAspect - 0.001) {
+      renderedHeight = rect.width / canvasAspect;
+      offsetY = (rect.height - renderedHeight) / 2;
+    }
+
+    const touch = (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0]);
+    const clientX = touch ? touch.clientX : e.clientX;
+    const clientY = touch ? touch.clientY : e.clientY;
+
+    const localX = clientX - rect.left - offsetX;
+    const localY = clientY - rect.top - offsetY;
+
+    const scaleX = defenseCanvas.width / renderedWidth;
+    const scaleY = defenseCanvas.height / renderedHeight;
+
     return {
-      x: (clientX - rect.left) * scaleX,
-      y: (clientY - rect.top) * scaleY
+      x: localX * scaleX,
+      y: localY * scaleY
     };
   }
 
@@ -9919,8 +9944,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     defenseCanvas.addEventListener('touchstart', e => {
       lastDefenseTouchTime = performance.now();
+      if (e.cancelable) e.preventDefault();
       handleDefenseCanvasClick(e);
-    }, { passive: true });
+    }, { passive: false });
 
     defenseCanvas.addEventListener('click', e => {
       if (performance.now() - lastDefenseTouchTime < 450) return; // Prevent double trigger on touch devices
