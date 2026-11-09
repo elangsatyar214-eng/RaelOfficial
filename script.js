@@ -377,9 +377,13 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       localStorage.setItem(STORAGE_KEY_PLANS, JSON.stringify(plans));
     } catch (e) { }
+    if (typeof syncPlansToCloud === 'function') {
+      syncPlansToCloud(plans);
+    }
   }
 
   let futurePlans = getStoredPlans();
+  window.futurePlans = futurePlans;
 
   function renderFuturePlans() {
     if (!futurePlansList) return;
@@ -457,6 +461,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (window.lucide) window.lucide.createIcons();
   }
+
+  window.renderFuturePlans = renderFuturePlans;
+  window.saveStoredPlans = saveStoredPlans;
 
   if (futurePlanForm) {
     futurePlanForm.addEventListener('submit', (e) => {
@@ -10188,6 +10195,9 @@ function saveVaultData(data) {
   } catch (err) {
     console.warn('Error saving vault storage:', err);
   }
+  if (typeof syncVaultToCloud === 'function') {
+    syncVaultToCloud(data);
+  }
 }
 
 let activeVaultUser = sessionStorage.getItem('rayang_active_vault_user') || null;
@@ -10895,13 +10905,304 @@ function renderVaultUI() {
   }
 }
 
-// Initial auto-boot on script load
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    checkVaultDeepSync();
-    renderVaultUI();
+// =========================================================================
+// 12. REAL-TIME CLOUD DATABASE & MULTI-DEVICE SYNC ENGINE
+// =========================================================================
+// URL Firebase Realtime Database kamu bisa ditulis langsung di sini
+// atau diinput lewat modal Cloud Sync di website
+const HARDCODED_FIREBASE_DB_URL = ""; 
+
+let firebaseDb = null;
+let isCloudLive = false;
+
+function getFirebaseDbUrl() {
+  return HARDCODED_FIREBASE_DB_URL || localStorage.getItem('rayang_firebase_db_url') || "";
+}
+
+function updateCloudIndicators(status, message) {
+  const dots = document.querySelectorAll('.cloud-indicator-dot');
+  const storyText = document.getElementById('cloud-status-text-story');
+  const vaultText = document.getElementById('cloud-status-text-vault');
+  const modalText = document.getElementById('cloud-modal-status-text');
+  const modalSub = document.getElementById('cloud-modal-status-sub');
+
+  dots.forEach(d => {
+    d.classList.remove('dot-green', 'dot-yellow', 'dot-red');
+    d.classList.add(status === 'live' ? 'dot-green' : (status === 'error' ? 'dot-red' : 'dot-yellow'));
   });
-} else {
+
+  const label = status === 'live' ? 'Cloud Live 🟢' : 'Cloud Sync';
+  if (storyText) storyText.textContent = label;
+  if (vaultText) vaultText.textContent = label;
+
+  if (modalText) {
+    modalText.textContent = status === 'live'
+      ? 'Status: Terhubung & Live Real-Time 🟢'
+      : (status === 'error' ? 'Status: Gagal Terhubung 🔴' : 'Status: Offline / Penyimpanan Lokal 🟡');
+  }
+  if (modalSub) {
+    modalSub.textContent = message || (status === 'live'
+      ? 'Data otomatis tersinkronkan antar HP Elang, Laptop, dan HP Rachel!'
+      : 'Data saat ini hanya tersimpan di perangkat ini.');
+  }
+}
+
+function initCloudSync() {
+  const dbUrl = getFirebaseDbUrl();
+  if (!window.firebase || !dbUrl) {
+    updateCloudIndicators('offline');
+    return;
+  }
+
+  try {
+    if (!firebase.apps || !firebase.apps.length) {
+      firebase.initializeApp({ databaseURL: dbUrl });
+    }
+    firebaseDb = firebase.database();
+    isCloudLive = true;
+    updateCloudIndicators('live');
+
+    // 1. Real-time Listener for Our Story Dreams
+    firebaseDb.ref('future_plans').on('value', snapshot => {
+      const remotePlans = snapshot.val();
+      if (remotePlans && Array.isArray(remotePlans) && remotePlans.length > 0) {
+        if (typeof window.futurePlans !== 'undefined') {
+          window.futurePlans = remotePlans;
+        }
+        localStorage.setItem(STORAGE_KEY_PLANS, JSON.stringify(remotePlans));
+        if (typeof window.renderFuturePlans === 'function') {
+          window.renderFuturePlans();
+        }
+      }
+    }, err => {
+      console.warn('Firebase plans listener error:', err);
+      updateCloudIndicators('error', 'Izin database diblokir atau URL salah. Pastikan Rules: read & write true.');
+    });
+
+    // 2. Real-time Listener for Secret Vault
+    firebaseDb.ref('vault_data').on('value', snapshot => {
+      const remoteVault = snapshot.val();
+      if (remoteVault && typeof remoteVault === 'object') {
+        const local = getVaultData();
+        const merged = {
+          claims: Object.assign({}, local.claims, remoteVault.claims || {}),
+          proposals: remoteVault.proposals || local.proposals || [],
+          dismissedNotices: Array.from(new Set([...(local.dismissedNotices || []), ...(remoteVault.dismissedNotices || [])]))
+        };
+        localStorage.setItem(VAULT_STORAGE_KEY, JSON.stringify(merged));
+        if (typeof renderVaultUI === 'function') {
+          renderVaultUI();
+        }
+      }
+    }, err => {
+      console.warn('Firebase vault listener error:', err);
+    });
+
+  } catch (err) {
+    console.warn('Firebase init error:', err);
+    updateCloudIndicators('error', err.message);
+  }
+}
+
+function syncPlansToCloud(plans) {
+  if (firebaseDb && isCloudLive) {
+    try {
+      firebaseDb.ref('future_plans').set(plans);
+    } catch (e) {
+      console.warn('Error pushing plans to cloud:', e);
+    }
+  }
+}
+
+function syncVaultToCloud(data) {
+  if (firebaseDb && isCloudLive) {
+    try {
+      firebaseDb.ref('vault_data').set(data);
+    } catch (e) {
+      console.warn('Error pushing vault to cloud:', e);
+    }
+  }
+}
+
+window.openCloudSyncModal = function(origin) {
+  const modal = document.getElementById('cloud-sync-modal');
+  const input = document.getElementById('firebase-db-url-input');
+  if (!modal) return;
+  if (input) input.value = getFirebaseDbUrl();
+  updateCloudIndicators(isCloudLive ? 'live' : 'offline');
+  modal.classList.add('open');
+};
+
+window.closeCloudSyncModal = function() {
+  const modal = document.getElementById('cloud-sync-modal');
+  if (modal) modal.classList.remove('open');
+};
+
+window.saveFirebaseDatabaseUrl = function() {
+  const input = document.getElementById('firebase-db-url-input');
+  const raw = input ? input.value.trim() : '';
+
+  if (!raw) {
+    localStorage.removeItem('rayang_firebase_db_url');
+    alert('URL Database dihapus. Website kembali ke mode penyimpanan lokal.');
+    window.location.reload();
+    return;
+  }
+
+  if (!raw.startsWith('https://') || !raw.includes('firebaseio.com')) {
+    alert('Format URL salah! URL Firebase harus berawalan "https://" dan berakhiran "firebaseio.com" (contoh: https://proyek-kamu-default-rtdb.firebaseio.com)');
+    return;
+  }
+
+  localStorage.setItem('rayang_firebase_db_url', raw);
+  initCloudSync();
+
+  // Seed existing local data to Firebase if remote is empty
+  if (firebaseDb) {
+    firebaseDb.ref('future_plans').once('value').then(snap => {
+      if (!snap.exists() || !snap.val()) {
+        const stored = localStorage.getItem(STORAGE_KEY_PLANS);
+        if (stored) {
+          try {
+            firebaseDb.ref('future_plans').set(JSON.parse(stored));
+          } catch (e) {}
+        }
+      }
+    });
+
+    firebaseDb.ref('vault_data').once('value').then(snap => {
+      if (!snap.exists() || !snap.val()) {
+        firebaseDb.ref('vault_data').set(getVaultData());
+      }
+    });
+  }
+
+  if (window.confetti) {
+    window.confetti({ particleCount: 80, spread: 60 });
+  }
+
+  alert('🎉 Berhasil terhubung ke Cloud Database! Sekarang seluruh HP dan Laptop akan tersinkronisasi otomatis secara Live!');
+  closeCloudSyncModal();
+};
+
+// Zero-Config Instant Share Links
+window.shareDreamsSyncLink = function() {
+  let plans = [];
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_PLANS);
+    if (raw) plans = JSON.parse(raw);
+  } catch (e) {}
+  if (!plans.length && window.futurePlans) plans = window.futurePlans;
+
+  const payload = encodeVaultSyncPayload(plans);
+  const siteUrl = window.location.origin + window.location.pathname;
+  const deepLink = `${siteUrl}#story?sync_dreams=${payload}`;
+  const waMsg = encodeURIComponent(
+    `Hai Sayang! 💖\n\nIni daftar impian & rencana masa depan kita yang terbaru. Buka tautan ini di HP atau Laptop kamu untuk menyinkronkannya yaa:\n${deepLink}`
+  );
+
+  const proceed = confirm(
+    `Tautan sinkronisasi daftar impian siap dikirim!\n\nApakah kamu mau mengirimkannya via WhatsApp ke pasangan sekarang?`
+  );
+  if (proceed) {
+    window.open(`https://wa.me/?text=${waMsg}`, '_blank');
+  }
+};
+
+window.shareVaultSyncLink = function() {
+  const data = getVaultData();
+  const payload = encodeVaultSyncPayload(data);
+  const siteUrl = window.location.origin + window.location.pathname;
+  const deepLink = `${siteUrl}#vault?sync_vault=${payload}`;
+  const waMsg = encodeURIComponent(
+    `Hai Sayang! 💌\n\nIni pembaruan voucher kencan & pengajuan kita. Buka tautan ini di HP atau Laptop kamu untuk menyinkronkannya:\n${deepLink}`
+  );
+
+  const proceed = confirm(
+    `Tautan sinkronisasi voucher kencan siap dikirim!\n\nApakah kamu mau mengirimkannya via WhatsApp ke pasangan sekarang?`
+  );
+  if (proceed) {
+    window.open(`https://wa.me/?text=${waMsg}`, '_blank');
+  }
+};
+
+function checkGlobalDeepSync() {
+  const hash = window.location.hash || '';
+  const search = window.location.search || '';
+  const full = search + hash;
+
+  // Check dreams sync
+  const matchDreams = full.match(/[?&]sync_dreams=([^&#]+)/);
+  if (matchDreams) {
+    const importedPlans = decodeVaultSyncPayload(matchDreams[1]);
+    if (Array.isArray(importedPlans) && importedPlans.length > 0) {
+      let currentPlans = [];
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY_PLANS);
+        if (raw) currentPlans = JSON.parse(raw);
+      } catch (e) {}
+
+      const existingTexts = new Set(currentPlans.map(p => (p.text || '').trim().toLowerCase()));
+      importedPlans.forEach(imp => {
+        if (imp && imp.text && !existingTexts.has(imp.text.trim().toLowerCase())) {
+          currentPlans.unshift(imp);
+          existingTexts.add(imp.text.trim().toLowerCase());
+        }
+      });
+
+      localStorage.setItem(STORAGE_KEY_PLANS, JSON.stringify(currentPlans));
+      if (typeof window.futurePlans !== 'undefined') {
+        window.futurePlans = currentPlans;
+      }
+      if (typeof window.renderFuturePlans === 'function') {
+        window.renderFuturePlans();
+      }
+      if (typeof syncPlansToCloud === 'function') {
+        syncPlansToCloud(currentPlans);
+      }
+
+      if (window.confetti) window.confetti({ particleCount: 70, spread: 60 });
+      alert('🎉 Berhasil menyinkronkan daftar impian dari pasanganmu!');
+      if (typeof switchSection === 'function') switchSection('story');
+    }
+  }
+
+  // Check full vault sync
+  const matchVault = full.match(/[?&]sync_vault=([^&#]+)/);
+  if (matchVault) {
+    const importedVault = decodeVaultSyncPayload(matchVault[1]);
+    if (importedVault && typeof importedVault === 'object') {
+      const local = getVaultData();
+      const merged = {
+        claims: Object.assign({}, local.claims, importedVault.claims || {}),
+        proposals: (importedVault.proposals || []).concat(
+          (local.proposals || []).filter(lp => !(importedVault.proposals || []).some(ip => ip.id === lp.id))
+        ),
+        dismissedNotices: Array.from(new Set([...(local.dismissedNotices || []), ...(importedVault.dismissedNotices || [])]))
+      };
+      saveVaultData(merged);
+      if (typeof renderVaultUI === 'function') {
+        renderVaultUI();
+      }
+      if (window.confetti) window.confetti({ particleCount: 70, spread: 60 });
+      alert('💌 Berhasil menyinkronkan seluruh voucher & pengajuan kencan dari pasanganmu!');
+      if (typeof switchSection === 'function') switchSection('vault');
+    }
+  }
+}
+
+window.addEventListener('hashchange', checkGlobalDeepSync);
+
+// Auto-Boot Lifecycle
+function bootApplication() {
   checkVaultDeepSync();
+  checkGlobalDeepSync();
   renderVaultUI();
+  initCloudSync();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', bootApplication);
+} else {
+  bootApplication();
 }
