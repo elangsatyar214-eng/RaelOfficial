@@ -530,94 +530,45 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Smart auto-detector for Archives photos & Multi-Photo Sliders (2025, 2024, 2023)
-  // Cache agar tidak perlu probe ulang setiap buka Archives
-  const imgResolvedCache = {};
+  // Fast Direct Photo Registry for Memory Archives (Zero Network Probing Lag)
+  const ARCHIVES_PHOTOS_CONFIG = {
+    '1': ['assets/images/archives/memory-1.jpeg'],
+    '2': ['assets/images/archives/memory-2.jpeg'],
+    '3': ['assets/images/archives/memory-3.jpeg'],
+    '2026': [
+      'assets/images/archives/2026-1.jpeg',
+      'assets/images/archives/2026-2.jpeg',
+      'assets/images/archives/2026-3.jpeg',
+      'assets/images/archives/2026-4.jpeg',
+      'assets/images/archives/2026-5.jpeg',
+      'assets/images/archives/2026-6.jpeg',
+      'assets/images/archives/2026-7.jpeg',
+      'assets/images/archives/2026-8.jpeg'
+    ],
+    '2025': [
+      'assets/images/archives/2025-1.jpeg',
+      'assets/images/archives/2025-2.jpeg',
+      'assets/images/archives/2025-3.jpeg',
+      'assets/images/archives/2025-4.jpeg',
+      'assets/images/archives/2025-6.jpeg'
+    ],
+    '2024': [
+      'assets/images/archives/2024-1.jpeg',
+      'assets/images/archives/2024-2.jpeg',
+      'assets/images/archives/2024-3.jpeg',
+      'assets/images/archives/2024-4.jpeg',
+      'assets/images/archives/2024-5.jpeg',
+      'assets/images/archives/2024-6.jpeg',
+      'assets/images/archives/2024-7.jpeg',
+      'assets/images/archives/2024-8.jpeg'
+    ],
+    '2023': [
+      'assets/images/archives/2023-1.jpeg',
+      'assets/images/archives/2023-2.jpeg'
+    ]
+  };
+
   let archivesInitialized = false;
-
-  const ARCHIVES_EXTS = ['jpeg', 'jpg', 'png', 'webp', 'JPEG', 'JPG', 'PNG'];
-
-  function probeSingleImage(src) {
-    return new Promise(resolve => {
-      const testImg = new Image();
-      testImg.onload = () => resolve(src);
-      testImg.onerror = () => resolve(null);
-      testImg.src = src;
-    });
-  }
-
-  async function findWorkingImage(candidates) {
-    for (const src of candidates) {
-      // Cek cache dulu sebelum probe network
-      if (imgResolvedCache[src] === true) return src;
-      if (imgResolvedCache[src] === false) continue;
-      const ok = await probeSingleImage(src);
-      if (ok) {
-        imgResolvedCache[src] = true;
-        return ok;
-      } else {
-        imgResolvedCache[src] = false;
-      }
-    }
-    return null;
-  }
-
-  async function findPhotosForCard(card) {
-    const num = card.querySelector('.polaroid-real-img')?.getAttribute('data-index') || '1';
-    const year = card.getAttribute('data-year');
-    const photos = [];
-    let consecutiveMisses = 0;
-
-    for (let k = 1; k <= 25; k++) {
-      const candidates = [];
-      if (year) {
-        // Year-based filenames: 2025-1.jpeg, 2025_1.jpeg, 2025 (1).jpeg, 20251.jpeg
-        ARCHIVES_EXTS.forEach(ext => {
-          candidates.push(`assets/images/archives/${year}-${k}.${ext}`);
-          candidates.push(`assets/images/archives/${year}_${k}.${ext}`);
-          candidates.push(`assets/images/archives/${year} (${k}).${ext}`);
-          candidates.push(`assets/images/archives/${year}${k}.${ext}`);
-        });
-      }
-      // Index filenames: memory-4-1.jpeg, 4-1.jpeg
-      ARCHIVES_EXTS.forEach(ext => {
-        candidates.push(`assets/images/archives/memory-${num}-${k}.${ext}`);
-        candidates.push(`assets/images/archives/${num}-${k}.${ext}`);
-        // Backwards compatibility if user numbered memory files previously
-        if (year === '2025') {
-          candidates.push(`assets/images/archives/memory-4-${k}.${ext}`);
-          candidates.push(`assets/images/archives/4-${k}.${ext}`);
-        } else if (year === '2024') {
-          candidates.push(`assets/images/archives/memory-5-${k}.${ext}`);
-          candidates.push(`assets/images/archives/5-${k}.${ext}`);
-        } else if (year === '2023') {
-          candidates.push(`assets/images/archives/memory-6-${k}.${ext}`);
-          candidates.push(`assets/images/archives/6-${k}.${ext}`);
-        }
-      });
-
-      // Single photo fallbacks (checked on k === 1)
-      if (k === 1) {
-        ARCHIVES_EXTS.forEach(ext => {
-          if (year) candidates.push(`assets/images/archives/${year}.${ext}`);
-          candidates.push(`assets/images/archives/memory-${num}.${ext}`);
-          candidates.push(`assets/images/archives/${num}.${ext}`);
-          candidates.push(`assets/images/archives/polaroid-${num}.${ext}`);
-        });
-      }
-
-      const found = await findWorkingImage(candidates);
-      if (found) {
-        photos.push(found);
-        consecutiveMisses = 0;
-      } else {
-        consecutiveMisses++;
-        if (k > 1 && consecutiveMisses >= 2) break;
-        if (k === 1 && consecutiveMisses >= 1) break;
-      }
-    }
-    return photos;
-  }
 
   function setupCardSlider(card, photos) {
     card._photos = photos;
@@ -627,7 +578,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const realImg = card.querySelector('.polaroid-real-img');
     if (!imgWrapper || !realImg) return;
 
-    realImg.src = photos[0];
+    if (!realImg.getAttribute('src')) {
+      realImg.src = photos[0];
+    }
+    realImg.loading = 'lazy';
+    realImg.decoding = 'async';
     realImg.classList.add('loaded');
 
     if (photos.length > 1) {
@@ -654,6 +609,13 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       imgWrapper.appendChild(dotsContainer);
 
+      function preloadAdjacent(idx) {
+        const nextIdx = (idx + 1) % photos.length;
+        const prevIdx = (idx - 1 + photos.length) % photos.length;
+        if (photos[nextIdx]) { const p1 = new Image(); p1.src = photos[nextIdx]; }
+        if (photos[prevIdx]) { const p2 = new Image(); p2.src = photos[prevIdx]; }
+      }
+
       function setSlide(idx) {
         card._currentIdx = (idx + photos.length) % photos.length;
         realImg.src = photos[card._currentIdx];
@@ -661,7 +623,11 @@ document.addEventListener('DOMContentLoaded', () => {
         dotsContainer.querySelectorAll('.dot').forEach((d, i) => {
           d.classList.toggle('active', i === card._currentIdx);
         });
+        preloadAdjacent(card._currentIdx);
       }
+
+      // Preload next image in idle time
+      setTimeout(() => preloadAdjacent(0), 100);
 
       // Prev Button
       const prevBtn = document.createElement('button');
@@ -705,36 +671,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  async function initPolaroidArchivesImages() {
-    if (archivesInitialized) return; // Jangan probe ulang jika sudah pernah dijalankan
+  function initPolaroidArchivesImages() {
+    if (archivesInitialized) return;
     archivesInitialized = true;
 
     const polaroidCards = document.querySelectorAll('.polaroid-card');
-
-    // Tambahkan shimmer placeholder ke setiap wrapper sebelum foto ditemukan
     polaroidCards.forEach(card => {
-      const wrapper = card.querySelector('.polaroid-img-wrapper');
-      if (wrapper) wrapper.classList.add('loading');
-    });
+      const year = card.getAttribute('data-year');
+      const num = card.querySelector('.polaroid-real-img')?.getAttribute('data-index') || '1';
+      const key = year || num;
+      const photos = ARCHIVES_PHOTOS_CONFIG[key] || [];
 
-    for (const card of polaroidCards) {
-      const photos = await findPhotosForCard(card);
       const wrapper = card.querySelector('.polaroid-img-wrapper');
       if (wrapper) wrapper.classList.remove('loading');
 
       if (photos.length > 0) {
         setupCardSlider(card, photos);
-      } else {
-        const img = card.querySelector('.polaroid-real-img');
-        if (img) {
-          img.classList.remove('loaded');
-          img.removeAttribute('src');
-        }
       }
-    }
+    });
   }
 
-  // Lazy init: hanya jalankan probe saat pertama kali Archives dibuka
+  // Fast direct initialization on load so cards are ready instantly
+  initPolaroidArchivesImages();
+
   window.handlePolaroidImgError = function(img) {};
 
   // Modal Multi-Photo Viewer
