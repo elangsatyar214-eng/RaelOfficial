@@ -377,9 +377,8 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       localStorage.setItem(STORAGE_KEY_PLANS, JSON.stringify(plans));
     } catch (e) { }
-    if (typeof syncPlansToCloud === 'function') {
-      syncPlansToCloud(plans);
-    }
+    // CATATAN: Tidak lagi push full array ke cloud dari sini.
+    // Setiap operasi (add/update/delete) memanggil fungsi atomic-nya masing-masing.
   }
 
   let futurePlans = getStoredPlans();
@@ -443,6 +442,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (target) {
           target.completed = !target.completed;
           saveStoredPlans(futurePlans);
+          // Atomic update: hanya field 'completed' yang diubah di cloud
+          if (typeof window.updatePlanInCloud === 'function') {
+            window.updatePlanInCloud(target);
+          }
           if (target.completed && window.confetti) {
             window.confetti({
               particleCount: 60,
@@ -457,6 +460,10 @@ document.addEventListener('DOMContentLoaded', () => {
       // Delete button
       const delBtn = card.querySelector('.plan-delete-btn');
       delBtn.addEventListener('click', () => {
+        // Atomic delete: hapus hanya node plan ini dari cloud
+        if (typeof window.deletePlanFromCloud === 'function') {
+          window.deletePlanFromCloud(plan.id);
+        }
         futurePlans = getStoredPlans().filter(p => p.id !== plan.id);
         saveStoredPlans(futurePlans);
         renderFuturePlans();
@@ -492,6 +499,10 @@ document.addEventListener('DOMContentLoaded', () => {
       futurePlans = getStoredPlans();
       futurePlans.unshift(newPlan);
       saveStoredPlans(futurePlans);
+      // Atomic add: hanya kirim newPlan ke cloud, tidak overwrite semua
+      if (typeof window.addPlanToCloud === 'function') {
+        window.addPlanToCloud(newPlan);
+      }
       futurePlanInput.value = '';
       renderFuturePlans();
 
@@ -10888,21 +10899,38 @@ function initCloudSync() {
     updateCloudIndicators('live');
 
     // 1. Real-time Listener for Our Story Dreams
+    // Data di Firebase disimpan sebagai keyed object: { "planId": {plan}, "planId2": {plan2} }
+    // Bukan array, agar tiap device hanya menulis node-nya sendiri (atomic, no overwrite).
     firebaseDb.ref('future_plans').on('value', snapshot => {
       const rawPlans = snapshot.val();
       let remotePlans = [];
-      if (Array.isArray(rawPlans)) {
-        remotePlans = rawPlans.filter(Boolean);
-      } else if (rawPlans && typeof rawPlans === 'object') {
-        remotePlans = Object.keys(rawPlans)
-          .sort((a, b) => parseInt(a, 10) - parseInt(b, 10))
-          .map(k => rawPlans[k])
-          .filter(Boolean);
+
+      if (rawPlans && typeof rawPlans === 'object') {
+        // Normalisasi: baik array lama maupun keyed object baru
+        if (Array.isArray(rawPlans)) {
+          remotePlans = rawPlans.filter(Boolean);
+        } else {
+          remotePlans = Object.values(rawPlans).filter(Boolean);
+        }
+        // Urutkan: terbaru dulu (id = timestamp = Date.now())
+        remotePlans.sort((a, b) => (b.id || 0) - (a.id || 0));
       }
 
-      if (remotePlans && remotePlans.length > 0) {
-        localStorage.setItem(STORAGE_KEY_PLANS, JSON.stringify(remotePlans));
-        window.futurePlans = remotePlans;
+      if (remotePlans.length > 0) {
+        // Ambil default plans lokal agar tidak hilang jika remote belum ada mereka
+        const localRaw = localStorage.getItem(STORAGE_KEY_PLANS);
+        let localPlans = [];
+        try { localPlans = localRaw ? JSON.parse(localRaw) : []; } catch (e) {}
+
+        // Merge: gabungkan remote + lokal, deduplikasi by id
+        const mergedMap = {};
+        // Masukkan lokal dulu (remote akan override jika id sama, karena lebih otoritatif)
+        localPlans.forEach(p => { if (p && p.id) mergedMap[String(p.id)] = p; });
+        remotePlans.forEach(p => { if (p && p.id) mergedMap[String(p.id)] = p; });
+
+        const merged = Object.values(mergedMap).sort((a, b) => (b.id || 0) - (a.id || 0));
+        localStorage.setItem(STORAGE_KEY_PLANS, JSON.stringify(merged));
+        window.futurePlans = merged;
         if (typeof window.renderFuturePlans === 'function') {
           window.renderFuturePlans();
         }
@@ -11016,6 +11044,7 @@ function initCloudSync() {
     });
 
     // 4. Auto-seed cloud if database is currently empty
+    // Seed pakai keyed object: { planId: plan } agar atomic-write aman
     firebaseDb.ref('future_plans').once('value').then(snap => {
       if (!snap.exists() || !snap.val()) {
         const stored = localStorage.getItem(STORAGE_KEY_PLANS);
@@ -11023,7 +11052,23 @@ function initCloudSync() {
         if (stored) {
           try { plansToSeed = JSON.parse(stored); } catch (e) {}
         }
-        firebaseDb.ref('future_plans').set(plansToSeed);
+        // Konversi array ke keyed object sebelum di-seed
+        const seedObj = {};
+        plansToSeed.forEach(p => { if (p && p.id) seedObj[String(p.id)] = p; });
+        firebaseDb.ref('future_plans').set(seedObj);
+      } else {
+        // Migrasi: jika data lama masih array (integer keys 0,1,2,...), konversi ke keyed object
+        const val = snap.val();
+        const isLegacyArray = Array.isArray(val) ||
+          (val && typeof val === 'object' && Object.keys(val).every(k => /^\d+$/.test(k) && parseInt(k, 10) < 1000));
+        if (isLegacyArray) {
+          const arr = Array.isArray(val) ? val : Object.values(val);
+          const keyedObj = {};
+          arr.filter(Boolean).forEach(p => {
+            if (p && p.id) keyedObj[String(p.id)] = p;
+          });
+          firebaseDb.ref('future_plans').set(keyedObj);
+        }
       }
     });
 
@@ -11095,12 +11140,54 @@ function initCloudSync() {
   }
 }
 
-function syncPlansToCloud(plans) {
-  if (firebaseDb && isCloudLive) {
+// ==================== ATOMIC CLOUD WRITE FUNCTIONS ====================
+
+// Tambah impian baru ke cloud (atomic, tidak overwrite impian lain)
+function addPlanToCloud(plan) {
+  if (firebaseDb && isCloudLive && plan && plan.id) {
     try {
-      firebaseDb.ref('future_plans').set(plans);
+      firebaseDb.ref('future_plans').child(String(plan.id)).set(plan);
     } catch (e) {
-      console.warn('Error pushing plans to cloud:', e);
+      console.warn('Error adding plan to cloud:', e);
+    }
+  }
+}
+window.addPlanToCloud = addPlanToCloud;
+
+// Update field di impian yang sudah ada (misal: toggle completed)
+function updatePlanInCloud(plan) {
+  if (firebaseDb && isCloudLive && plan && plan.id) {
+    try {
+      firebaseDb.ref('future_plans').child(String(plan.id)).update({ completed: plan.completed });
+    } catch (e) {
+      console.warn('Error updating plan in cloud:', e);
+    }
+  }
+}
+window.updatePlanInCloud = updatePlanInCloud;
+
+// Hapus satu impian dari cloud (atomic)
+function deletePlanFromCloud(planId) {
+  if (firebaseDb && isCloudLive && planId) {
+    try {
+      firebaseDb.ref('future_plans').child(String(planId)).remove();
+    } catch (e) {
+      console.warn('Error deleting plan from cloud:', e);
+    }
+  }
+}
+window.deletePlanFromCloud = deletePlanFromCloud;
+
+// Legacy: syncPlansToCloud dipertahankan untuk kompatibilitas (checkGlobalDeepSync)
+// tapi tidak dipakai untuk add/update/delete normal lagi
+function syncPlansToCloud(plans) {
+  if (firebaseDb && isCloudLive && Array.isArray(plans)) {
+    try {
+      const keyedObj = {};
+      plans.forEach(p => { if (p && p.id) keyedObj[String(p.id)] = p; });
+      firebaseDb.ref('future_plans').set(keyedObj);
+    } catch (e) {
+      console.warn('Error syncing plans to cloud:', e);
     }
   }
 }
@@ -11220,6 +11307,7 @@ function checkGlobalDeepSync() {
       if (typeof window.renderFuturePlans === 'function') {
         window.renderFuturePlans();
       }
+      // Gunakan syncPlansToCloud (keyed-object) agar tidak overwrite data cloud lain
       if (typeof syncPlansToCloud === 'function') {
         syncPlansToCloud(currentPlans);
       }
